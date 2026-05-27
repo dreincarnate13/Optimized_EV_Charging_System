@@ -243,7 +243,7 @@
                     <div class="legend-item"><span class="dot" style="background: #7f1d1d;"></span> Blacklisted Malicious Node (Proposed System Block)</div>
                     <div class="legend-item"><span class="dot" style="background: #0284c7;"></span> Vehicle Transiting (Headlights Active)</div>
                     <div class="legend-item"><span class="dot" style="background: #64748b;"></span> Vehicle Queued / Docked (Headlights Off)</div>
-                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Drop Event (Fleeing / Recalculating Route)</div>
+                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Individual Drop Event (Fleeing / Recalculating Route)</div>
                 </div>
                 <canvas id="simCanvas"></canvas>
             </div>
@@ -263,7 +263,7 @@
                     <div class="canvas-holder"><canvas id="chartDrops"></canvas></div>
                 </div>
                 <div class="chart-card-frame">
-                    <h3>2. Execution Latency Horizon (Logarithmic)</h3>
+                    <h3>2. System Execution Latency (Logarithmic)</h3>
                     <div class="canvas-holder"><canvas id="chartLatency"></canvas></div>
                 </div>
                 <div class="chart-card-frame">
@@ -274,6 +274,14 @@
                     <h3>4. Average Structural Waiting Footprint</h3>
                     <div class="canvas-holder"><canvas id="chartWaiting"></canvas></div>
                 </div>
+                <div class="chart-card-frame">
+                    <h3>5. Grid Resource Allocation Cost</h3>
+                    <div class="canvas-holder"><canvas id="chartCost"></canvas></div>
+                </div>
+                <div class="chart-card-frame">
+                    <h3>6. Charging Station Idle Time Friction</h3>
+                    <div class="canvas-holder"><canvas id="chartIdle"></canvas></div>
+                </div>
             </div>
         </div>
     </div>
@@ -283,56 +291,56 @@
         const empiricalRepository = {
             "10%": {
                 caltech: {
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.98", lat:"261.44", drops:9}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.86", lat:"321.12", drops:34}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.97", lat:"304.22", drops:100}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6655.06", lat:"324.30", drops:214}, "100%": {mr:"99.9%", pmr:"99.9%", cmr:"100.0%", wait:"6978.18", lat:"574.29", drops:1909} },
-                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16762.32", lat:"259.05", drops:1}, "100%": {mr:"99.9%", pmr:"99.9%", cmr:"100.0%", wait:"16784.71", lat:"548.41", drops:1761} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6862.64", lat:"283.63", drops:2}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6994.12", lat:"329.33", drops:2} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.48", lat:"269.69", drops:9}, "100%": {mr:"99.9%", pmr:"100.0%", cmr:"99.8%", wait:"6980.28", lat:"572.62", drops:1907} },
-                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"42578.37", lat:"123.57", drops:9}, "100%": {mr:"98.8%", pmr:"98.5%", cmr:"99.0%", wait:"43172.86", lat:"745.65", drops:18070} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.98", cost:"1781.97", idle:"24.30", lat:"261.44", drops:9}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.86", cost:"1781.97", idle:"24.30", lat:"321.12", drops:34}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.97", cost:"1781.97", idle:"24.33", lat:"304.22", drops:100}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6655.06", cost:"1781.97", idle:"24.33", lat:"324.30", drops:214}, "100%": {mr:"99.9%", pmr:"99.9%", cmr:"100.0%", wait:"6978.18", cost:"1780.87", idle:"23.33", lat:"574.29", drops:1909} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16762.32", cost:"1781.97", idle:"177.82", lat:"259.05", drops:1}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16762.32", cost:"1781.97", idle:"177.82", lat:"324.90", drops:1}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16762.32", cost:"1781.97", idle:"177.82", lat:"297.53", drops:3}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16762.32", cost:"1781.97", idle:"177.82", lat:"313.38", drops:3}, "100%": {mr:"99.9%", pmr:"99.9%", cmr:"100.0%", wait:"16784.71", cost:"1782.71", idle:"163.44", lat:"548.41", drops:1761} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6862.64", cost:"1781.97", idle:"22.84", lat:"283.63", drops:2}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6958.36", cost:"1781.97", idle:"22.84", lat:"349.77", drops:2}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6975.22", cost:"1781.97", idle:"21.97", lat:"331.43", drops:2}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6975.22", cost:"1781.97", idle:"21.97", lat:"342.80", drops:2}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6994.12", cost:"1781.97", idle:"21.11", lat:"329.33", drops:2} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.48", cost:"1781.97", idle:"22.84", lat:"269.69", drops:9}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.45", cost:"1781.97", idle:"22.84", lat:"315.94", drops:37}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.50", cost:"1781.97", idle:"22.84", lat:"318.81", drops:82}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.50", cost:"1781.97", idle:"22.84", lat:"343.86", drops:215}, "100%": {mr:"99.9%", pmr:"100.0%", cmr:"99.8%", wait:"6980.28", cost:"1781.38", idle:"21.11", lat:"572.62", drops:1907} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"42578.37", cost:"1781.97", idle:"51.92", lat:"123.57", drops:9}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"43097.14", cost:"1781.97", idle:"51.92", lat:"142.69", drops:28}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"43653.70", cost:"1781.97", idle:"51.92", lat:"142.72", drops:56}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"44037.54", cost:"1781.97", idle:"51.92", lat:"145.92", drops:104}, "100%": {mr:"98.8%", pmr:"98.5%", cmr:"99.0%", wait:"43172.86", cost:"1778.52", idle:"50.15", lat:"745.65", drops:18070} }
                 },
                 dundee: {
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"264.62", lat:"348.75", drops:20}, "100%": {mr:"99.8%", pmr:"99.8%", cmr:"100.0%", wait:"308.90", lat:"914.90", drops:3796} },
-                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3632.32", lat:"346.77", drops:18}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3989.50", lat:"659.82", drops:1113} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"213.89", lat:"394.94", drops:4}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"236.97", lat:"441.39", drops:4} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.20", lat:"378.70", drops:19}, "100%": {mr:"99.8%", pmr:"99.8%", cmr:"100.0%", wait:"227.02", lat:"933.74", drops:3705} },
-                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6837.97", lat:"132.13", drops:16}, "100%": {mr:"98.4%", pmr:"98.1%", cmr:"98.9%", wait:"6941.22", lat:"1311.04", drops:24013} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"264.62", cost:"628.52", idle:"209.51", lat:"348.75", drops:20}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"264.87", cost:"627.15", idle:"210.01", lat:"411.87", drops:39}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"263.73", cost:"626.82", idle:"208.30", lat:"397.58", drops:117}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"265.42", cost:"624.34", idle:"210.39", lat:"429.62", drops:184}, "100%": {mr:"99.8%", pmr:"99.8%", cmr:"100.0%", wait:"308.90", cost:"619.44", idle:"186.20", lat:"914.90", drops:3796} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3632.32", cost:"747.58", idle:"285.42", lat:"346.77", drops:18}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3654.02", cost:"746.27", idle:"286.01", lat:"404.60", drops:41}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3697.95", cost:"742.92", idle:"284.60", lat:"401.89", drops:75}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3774.47", cost:"743.08", idle:"294.02", lat:"426.00", drops:123}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"99.9%", wait:"3989.50", cost:"738.38", idle:"284.37", lat:"659.82", drops:1113} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"213.89", cost:"627.06", idle:"134.37", lat:"394.94", drops:4}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"236.06", cost:"629.66", idle:"123.27", lat:"464.95", drops:4}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"236.60", cost:"626.60", idle:"122.06", lat:"450.29", drops:4}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"236.97", cost:"630.76", idle:"117.79", lat:"450.83", drops:4}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"236.97", cost:"629.93", idle:"115.48", lat:"441.39", drops:4} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.20", cost:"633.07", idle:"133.74", lat:"378.70", drops:19}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"190.40", cost:"644.34", idle:"133.06", lat:"445.92", drops:51}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.85", cost:"647.01", idle:"134.87", lat:"555.82", drops:128}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.46", cost:"636.03", idle:"134.18", lat:"459.66", drops:279}, "100%": {mr:"99.8%", pmr:"99.8%", cmr:"100.0%", wait:"227.02", cost:"623.79", idle:"116.94", lat:"933.74", drops:3705} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6837.97", cost:"887.33", idle:"557.72", lat:"132.13", drops:16}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6904.91", cost:"889.71", idle:"550.04", lat:"158.37", drops:38}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7064.28", cost:"889.11", idle:"552.30", lat:"152.91", drops:64}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7055.84", cost:"889.74", idle:"547.56", lat:"199.64", drops:120}, "100%": {mr:"98.4%", pmr:"98.1%", cmr:"98.9%", wait:"6941.22", cost:"888.31", idle:"535.27", lat:"1311.04", drops:24013} }
                 },
                 nyserda: {
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"51.76", lat:"2028.01", drops:24}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"51.66", lat:"2420.83", drops:78}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.45", lat:"2416.63", drops:195}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"54.13", lat:"2636.36", drops:403}, "100%": {mr:"97.8%", pmr:"96.5%", cmr:"98.1%", wait:"52.86", lat:"35218.75", drops:40519} },
-                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"231.27", lat:"2416.77", drops:21}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"230.96", lat:"2562.29", drops:65}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"229.71", lat:"2505.14", drops:156}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"230.79", lat:"2606.93", drops:318}, "100%": {mr:"98.5%", pmr:"98.0%", cmr:"99.0%", wait:"258.06", lat:"23553.32", drops:24216} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.97", lat:"2855.41", drops:12}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.03", lat:"2744.32", drops:27}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.06", lat:"2744.40", drops:31}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", lat:"2761.16", drops:34}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", lat:"2789.46", drops:34} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2653.45", drops:24}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2576.27", drops:73}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2767.52", drops:186}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2944.16", drops:367}, "100%": {mr:"98.3%", pmr:"98.0%", cmr:"98.5%", wait:"2.07", lat:"29249.74", drops:28365} },
-                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6356.04", lat:"425.45", drops:13}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6449.14", lat:"435.63", drops:47}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6520.37", lat:"407.35", drops:87}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6638.96", lat:"447.03", drops:180}, "100%": {mr:"97.5%", pmr:"97.0%", cmr:"97.8%", wait:"6794.29", lat:"12477.13", drops:34528} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"51.76", cost:"351.19", idle:"1134.12", lat:"2028.01", drops:24}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"51.66", cost:"350.86", idle:"1135.64", lat:"2420.83", drops:78}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.45", cost:"350.40", idle:"1139.34", lat:"2416.63", drops:195}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"54.13", cost:"350.56", idle:"1139.18", lat:"2636.36", drops:403}, "100%": {mr:"97.8%", pmr:"96.5%", cmr:"98.1%", wait:"52.86", cost:"353.30", idle:"1031.72", lat:"35218.75", drops:40519} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"231.27", cost:"371.80", idle:"534.43", lat:"2416.77", drops:21}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"230.96", cost:"371.89", idle:"534.41", lat:"2562.29", drops:65}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"229.71", cost:"371.89", idle:"534.24", lat:"2505.14", drops:156}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"230.79", cost:"372.06", idle:"534.33", lat:"2606.93", drops:318}, "100%": {mr:"98.5%", pmr:"98.0%", cmr:"99.0%", wait:"258.06", cost:"377.37", idle:"489.31", lat:"23553.32", drops:24216} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.97", cost:"372.11", idle:"627.35", lat:"2855.41", drops:12}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.03", cost:"373.32", idle:"611.39", lat:"2744.32", drops:27}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.06", cost:"375.07", idle:"604.28", lat:"2744.40", drops:31}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", cost:"373.99", idle:"597.26", lat:"2761.16", drops:34}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", cost:"374.60", idle:"591.79", lat:"2789.46", drops:34} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.57", idle:"636.09", lat:"2653.45", drops:24}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.57", idle:"636.09", lat:"2576.27", drops:73}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.57", idle:"636.09", lat:"2767.52", drops:186}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.54", idle:"636.08", lat:"2944.16", drops:367}, "100%": {mr:"98.3%", pmr:"98.0%", cmr:"98.5%", wait:"2.07", cost:"375.03", idle:"594.55", lat:"29249.74", drops:28365} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6356.04", cost:"536.28", idle:"388.11", lat:"425.45", drops:13}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6449.14", cost:"533.66", idle:"388.10", lat:"435.63", drops:47}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6520.37", cost:"531.33", idle:"388.14", lat:"407.35", drops:87}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6638.96", cost:"529.53", idle:"388.16", lat:"447.03", drops:180}, "100%": {mr:"97.5%", pmr:"97.0%", cmr:"97.8%", wait:"6794.29", cost:"528.50", idle:"351.75", lat:"12477.13", drops:34528} }
                 },
                 synthetic: {
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6.99", lat:"5889.26", drops:30}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7.30", lat:"5568.77", drops:42} },
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"102.39", lat:"5490.20", drops:55}, "100%": {mr:"99.2%", pmr:"99.0%", cmr:"99.4%", wait:"103.74", lat:"33011.64", drops:39297} }
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6.99", cost:"612.73", idle:"720.63", lat:"5889.26", drops:30}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7.30", cost:"613.08", idle:"663.37", lat:"5568.77", drops:42} },
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"102.39", cost:"612.78", idle:"904.09", lat:"5490.20", drops:55}, "100%": {mr:"99.2%", pmr:"99.0%", cmr:"99.4%", wait:"103.74", cost:"613.56", idle:"789.01", lat:"33011.64", drops:39297} }
                 }
             },
             "30%": {
                 caltech: {
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6655.10", lat:"270.79", drops:52}, "100%": {mr:"99.5%", pmr:"99.2%", cmr:"99.7%", wait:"8929.85", lat:"998.10", drops:10484} },
-                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16595.55", lat:"268.51", drops:40}, "100%": {mr:"99.5%", pmr:"99.1%", cmr:"99.8%", wait:"18354.44", lat:"924.19", drops:9933} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"8163.05", lat:"290.89", drops:11}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"8995.32", lat:"293.23", drops:11} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.40", lat:"285.87", drops:49}, "100%": {mr:"99.5%", pmr:"99.4%", cmr:"99.6%", wait:"8927.54", lat:"1087.81", drops:10491} },
-                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"40010.41", lat:"124.17", drops:99}, "100%": {mr:"91.9%", pmr:"90.8%", cmr:"92.5%", wait:"46353.80", lat:"3120.19", drops:114816} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6655.10", cost:"1781.97", idle:"24.30", lat:"270.79", drops:52}, "100%": {mr:"99.5%", pmr:"99.2%", cmr:"99.7%", wait:"8929.85", cost:"1780.81", idle:"17.67", lat:"998.10", drops:10484} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16595.55", cost:"1781.97", idle:"173.57", lat:"268.51", drops:40}, "100%": {mr:"99.5%", pmr:"99.1%", cmr:"99.8%", wait:"18354.44", cost:"1780.27", idle:"107.61", lat:"924.19", drops:9933} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"8163.05", cost:"1781.97", idle:"21.96", lat:"290.89", drops:11}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"8995.32", cost:"1781.97", idle:"13.65", lat:"293.23", drops:11} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.40", cost:"1781.97", idle:"22.84", lat:"285.87", drops:49}, "100%": {mr:"99.5%", pmr:"99.4%", cmr:"99.6%", wait:"8927.54", cost:"1780.75", idle:"16.65", lat:"1087.81", drops:10491} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"40010.41", cost:"1781.97", idle:"52.53", lat:"124.17", drops:99}, "100%": {mr:"91.9%", pmr:"90.8%", cmr:"92.5%", wait:"46353.80", cost:"1786.99", idle:"41.11", lat:"3120.19", drops:114816} }
                 },
                 dundee: {
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"262.37", lat:"352.99", drops:59}, "100%": {mr:"99.2%", pmr:"99.0%", cmr:"99.4%", wait:"526.78", lat:"1900.95", drops:16151} },
-                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3527.27", lat:"351.76", drops:77}, "100%": {mr:"99.6%", pmr:"99.5%", cmr:"99.8%", wait:"4448.95", lat:"1147.58", drops:7543} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"396.73", lat:"385.64", drops:17}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"454.81", lat:"389.66", drops:17} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.90", lat:"364.57", drops:51}, "100%": {mr:"99.2%", pmr:"99.1%", cmr:"99.4%", wait:"449.15", lat:"2048.46", drops:15839} },
-                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6401.82", lat:"154.63", drops:102}, "100%": {mr:"91.7%", pmr:"91.0%", cmr:"92.3%", wait:"7400.63", lat:"4834.94", drops:120117} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"262.37", cost:"627.82", idle:"207.56", lat:"352.99", drops:59}, "100%": {mr:"99.2%", pmr:"99.0%", cmr:"99.4%", wait:"526.78", cost:"632.00", idle:"132.09", lat:"1900.95", drops:16151} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3527.27", cost:"747.30", idle:"300.05", lat:"351.76", drops:77}, "100%": {mr:"99.6%", pmr:"99.5%", cmr:"99.8%", wait:"4448.95", cost:"748.86", idle:"225.27", lat:"1147.58", drops:7543} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"396.73", cost:"634.92", idle:"120.44", lat:"385.64", drops:17}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"454.81", cost:"626.24", idle:"73.89", lat:"389.66", drops:17} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.90", cost:"640.75", idle:"134.73", lat:"364.57", drops:51}, "100%": {mr:"99.2%", pmr:"99.1%", cmr:"99.4%", wait:"449.15", cost:"639.54", idle:"79.07", lat:"2048.46", drops:15839} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6401.82", cost:"887.19", idle:"549.32", lat:"154.63", drops:102}, "100%": {mr:"91.7%", pmr:"91.0%", cmr:"92.3%", wait:"7400.63", cost:"904.13", idle:"416.49", lat:"4834.94", drops:120117} }
                 },
                 nyserda: {
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.05", lat:"2119.12", drops:68}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"52.83", lat:"2179.53", drops:255}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"52.40", lat:"2544.37", drops:549}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.49", lat:"2969.05", drops:1327}, "100%": {mr:"93.0%", pmr:"91.4%", cmr:"94.2%", wait:"51.75", lat:"93361.58", drops:124362} },
-                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"224.68", lat:"2169.81", drops:69}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"219.32", lat:"2405.91", drops:255}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"203.70", lat:"2579.93", drops:545}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"187.60", lat:"3011.48", drops:1251}, "100%": {mr:"95.3%", pmr:"94.0%", cmr:"96.2%", wait:"299.81", lat:"57879.90", drops:78327} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", lat:"2448.71", drops:46}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.16", lat:"2400.70", drops:76}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.31", lat:"2646.98", drops:90}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.36", lat:"2390.48", drops:100}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.41", lat:"2425.71", drops:106} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2350.18", drops:67}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2381.44", drops:242}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2844.25", drops:535}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"3212.48", drops:1230}, "100%": {mr:"94.8%", pmr:"93.5%", cmr:"95.8%", wait:"2.41", lat:"71296.87", drops:88933} },
-                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6034.87", lat:"400.15", drops:108}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5490.07", lat:"363.29", drops:374}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5209.63", lat:"480.51", drops:653}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5362.53", lat:"478.81", drops:1182}, "100%": {mr:"91.1%", pmr:"89.5%", cmr:"92.0%", wait:"7425.76", lat:"38207.96", drops:128596} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.05", cost:"349.59", idle:"1136.87", lat:"2119.12", drops:68}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"52.83", cost:"351.08", idle:"1136.25", lat:"2179.53", drops:255}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"52.40", cost:"352.80", idle:"1132.55", lat:"2544.37", drops:549}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.49", cost:"350.06", idle:"1138.98", lat:"2969.05", drops:1327}, "100%": {mr:"93.0%", pmr:"91.4%", cmr:"94.2%", wait:"51.75", cost:"350.87", idle:"808.29", lat:"93361.58", drops:124362} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"224.68", cost:"371.80", idle:"534.17", lat:"2169.81", drops:69}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"219.32", cost:"372.69", idle:"533.83", lat:"2405.91", drops:255}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"203.70", cost:"374.01", idle:"532.88", lat:"2579.93", drops:545}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"187.60", cost:"373.89", idle:"533.01", lat:"3011.48", drops:1251}, "100%": {mr:"95.3%", pmr:"94.0%", cmr:"96.2%", wait:"299.81", cost:"383.84", idle:"406.61", lat:"57879.90", drops:78327} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", cost:"371.50", idle:"608.09", lat:"2448.71", drops:46}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.16", cost:"366.09", idle:"578.09", lat:"2400.70", drops:76}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.31", cost:"364.99", idle:"539.23", lat:"2646.98", drops:90}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.36", cost:"363.47", idle:"511.17", lat:"2390.48", drops:100}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.41", cost:"362.56", idle:"494.94", lat:"2425.71", drops:106} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.57", idle:"636.09", lat:"2350.18", drops:67}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.46", idle:"636.19", lat:"2381.44", drops:242}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.56", idle:"636.40", lat:"2844.25", drops:535}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", cost:"372.98", idle:"637.80", lat:"3212.48", drops:1230}, "100%": {mr:"94.8%", pmr:"93.5%", cmr:"95.8%", wait:"2.41", cost:"362.87", idle:"498.10", lat:"71296.87", drops:88933} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6034.87", cost:"539.35", idle:"387.97", lat:"400.15", drops:108}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5490.07", cost:"539.34", idle:"386.58", lat:"363.29", drops:374}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5209.63", cost:"534.23", idle:"386.40", lat:"480.51", drops:653}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5362.53", cost:"511.75", idle:"386.11", lat:"478.81", drops:1182}, "100%": {mr:"91.1%", pmr:"89.5%", cmr:"92.0%", wait:"7425.76", cost:"467.54", idle:"278.50", lat:"38207.96", drops:128596} }
                 },
                 synthetic: {
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7.87", lat:"5891.33", drops:92}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"9.34", lat:"5631.88", drops:128} },
-                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"103.29", lat:"4948.15", drops:145}, "100%": {mr:"97.4%", pmr:"96.0%", cmr:"98.2%", wait:"107.56", lat:"91248.80", drops:119643} }
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7.87", cost:"610.34", idle:"628.13", lat:"5891.33", drops:92}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"9.34", cost:"613.86", idle:"439.87", lat:"5631.88", drops:128} },
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"103.29", cost:"613.36", idle:"908.54", lat:"4948.15", drops:145}, "100%": {mr:"97.4%", pmr:"96.0%", cmr:"98.2%", wait:"107.56", cost:"619.83", idle:"546.61", lat:"91248.80", drops:119643} }
                 }
             }
         };
@@ -363,7 +371,6 @@
                 ctx.fillStyle = "#64748b"; ctx.fillRect(this.x - 10, this.y - 16, 20, 32);
                 ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x - 7, this.y - 13, 14, 8);
                 
-                // Color coding rules: honest green, malicious red, blacklisted deep dark red
                 ctx.fillStyle = this.isBlacklisted ? "#7f1d1d" : (this.isMalicious ? "#dc2626" : "#16a34a");
                 ctx.beginPath(); ctx.arc(this.x, this.y + 6, 4, 0, Math.PI * 2); ctx.fill();
                 
@@ -383,7 +390,7 @@
                 const dropRateStr = document.getElementById('drop-rate').value;
                 const dropProbability = parseInt(dropRateStr) / 100;
 
-                // Turnaround trajectory penalty pathing if dropped by adversary node
+                // Turnaround trajectory penalty pathing if dropped by adversary node channel
                 if (this.status === 'dropped' && this.bounceX !== null) {
                     let dx = this.bounceX - this.x; let dy = this.bounceY - this.y;
                     let dist = Math.hypot(dx, dy); this.angle = Math.atan2(dy, dx);
@@ -401,10 +408,10 @@
                         this.status = 'transiting'; this.angle = Math.atan2(dy, dx);
                         this.x += (dx / dist) * this.speed; this.y += (dy / dist) * this.speed;
                     } else {
-                        // Vehicle arrived at its queue slot coordinate position
+                        // Vehicle arrived at its designated queue space position coordinate
                         if (qIndex === 0) {
                             if (this.target.isMalicious && !this.target.isBlacklisted) {
-                                // Baseline check: Probabilistic Drop Check execution rule matrix
+                                // Isolated target check context: execute local drop check loops
                                 if (Math.random() < dropProbability) {
                                     this.status = 'dropped'; this.alertTimer = 35;
                                     this.removeFromQueue();
@@ -414,12 +421,11 @@
                                         this.status = 'transiting'; 
                                         this.reassignTarget(algo);
                                     } else {
-                                        // Blind baselines: Turn around in a penalty path, clear out, then query back in blindly
                                         this.bounceX = this.x - Math.cos(this.angle) * 70 + (Math.random() - 0.5) * 40;
                                         this.bounceY = this.y - Math.sin(this.angle) * 70 + (Math.random() - 0.5) * 40;
                                     }
                                 } else {
-                                    this.status = 'docked'; // Lucky match connection survived drop probability barrier channel
+                                    this.status = 'docked';
                                 }
                             } else { this.status = 'docked'; }
                         } else { this.status = 'queued'; }
@@ -437,7 +443,6 @@
                 this.removeFromQueue();
                 let cleanPool = stations.filter(s => !s.isBlacklisted);
                 
-                // Security enforcement constraint check context rule
                 if (algo.includes("Reputation")) {
                     cleanPool = cleanPool.filter(s => !s.isMalicious);
                 }
@@ -499,12 +504,10 @@
             const malPercentStr = document.getElementById('malicious-cp').value;
             const algo = document.getElementById('algorithm').value;
 
-            // Generate exactly 10 nodes across space matching hard limits rules explicitly
             for(let i=1; i <= 10; i++) {
                 let x = 120 + (canvas.width - 240) * (i / 11);
                 let y = 120 + Math.random() * (canvas.height - 240);
                 
-                // Hardcoded index distributions rules: 10% translates to index 3, 30% maps to index 3, 6 and 9
                 let isMalicious = false;
                 if (malPercentStr === "10%" && i === 3) isMalicious = true;
                 if (malPercentStr === "30%" && (i === 3 || i === 6 || i === 9)) isMalicious = true;
@@ -540,7 +543,7 @@
                 });
             }
 
-            // --- 1. Connection Drops Chart (Logarithmic) ---
+            // Slide 1: Connection Drops Chart (Logarithmic)
             let dropsDatasets = algorithms.map(algo => ({
                 label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
                 data: extractLineData(algo, 'drops'), borderColor: colorMap[algo],
@@ -548,7 +551,7 @@
             }));
             recreateChart('chartDrops', 'logarithmic', 'Drops Counts', dropsDatasets, ratesX);
 
-            // --- 2. Latency Spectrum Chart (Logarithmic) ---
+            // Slide 2: Latency Spectrum Chart (Logarithmic)
             let latDatasets = algorithms.map(algo => ({
                 label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
                 data: extractLineData(algo, 'lat'), borderColor: colorMap[algo],
@@ -556,7 +559,7 @@
             }));
             recreateChart('chartLatency', 'logarithmic', 'Latency (ms)', latDatasets, ratesX);
 
-            // --- 3. Dynamic Multi-Variable Satisfaction Rates Chart (Linear %) ---
+            // Slide 3: Bipartite Satisfaction Rates
             let satDatasets = [
                 { label: "Overall Match Rate", data: extractLineData("Reputation based Gale shapley", "mr"), borderColor: "#16a34a", borderWidth: 3 },
                 { label: "Proscriber Match Rate", data: extractLineData("Reputation based Gale shapley", "pmr"), borderColor: "#2563eb", borderWidth: 2, borderDash: [5, 5] },
@@ -564,13 +567,29 @@
             ];
             recreateChart('chartSatisfaction', 'linear', 'Satisfaction Rate (%)', satDatasets, ratesX);
 
-            // --- 4. Average Queued Waiting Overhead Chart (Linear) ---
+            // Slide 4: Average Queued Waiting Overhead Chart
             let waitDatasets = algorithms.map(algo => ({
                 label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
                 data: extractLineData(algo, 'wait'), borderColor: colorMap[algo],
                 borderWidth: algo.includes("Reputation") ? 4 : 2, fill: false, tension: 0.1
             }));
-            recreateChart('chartWaiting', 'linear', 'Wait Dimensions', waitDatasets, ratesX);
+            recreateChart('chartWaiting', 'linear', 'Wait dimensions', waitDatasets, ratesX);
+
+            // Slide 5: Grid Operational Cost Plot
+            let costDatasets = algorithms.map(algo => ({
+                label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
+                data: extractLineData(algo, 'cost'), borderColor: colorMap[algo],
+                borderWidth: algo.includes("Reputation") ? 4 : 2, fill: false, tension: 0.1
+            }));
+            recreateChart('chartCost', 'linear', 'Cost units', costDatasets, ratesX);
+
+            // Slide 6: Charging Station Idle Time Profile
+            let idleDatasets = algorithms.map(algo => ({
+                label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
+                data: extractLineData(algo, 'idle'), borderColor: colorMap[algo],
+                borderWidth: algo.includes("Reputation") ? 4 : 2, fill: false, tension: 0.1
+            }));
+            recreateChart('chartIdle', 'linear', 'Idle Time Delay', idleDatasets, ratesX);
         }
 
         function recreateChart(canvasId, yAxisScaleType, labelY, datasetsArray, labelsX) {
