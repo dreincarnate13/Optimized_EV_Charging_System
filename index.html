@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reputation-Based EV Charging Grid Simulator</title>
+    <!-- Chart.js Core Library Delivery Engine -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -191,6 +192,7 @@
     </header>
 
     <div class="dashboard-container">
+        <!-- Upper Panel: Visual Grid Map -->
         <div class="upper-workspace">
             <div id="controls">
                 <div class="control-group">
@@ -239,16 +241,17 @@
             <div id="canvas-area">
                 <div id="legend">
                     <div class="legend-item"><span class="dot" style="background: #16a34a;"></span> Honest Charging Node (CP)</div>
-                    <div class="legend-item"><span class="dot" style="background: #dc2626;"></span> Malicious Charging Node (CP)</div>
+                    <div class="legend-item"><span class="dot" style="background: #dc2626;"></span> Active Malicious Node (CP)</div>
                     <div class="legend-item"><span class="dot" style="background: #7f1d1d;"></span> Blacklisted Malicious Node (Proposed System Block)</div>
                     <div class="legend-item"><span class="dot" style="background: #0284c7;"></span> Vehicle Transiting (Headlights Active)</div>
                     <div class="legend-item"><span class="dot" style="background: #64748b;"></span> Vehicle Queued / Docked (Headlights Off)</div>
-                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Individual Drop Event (Fleeing / Recalculating Route)</div>
+                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Drop Event (Fleeing / Recalculating Route)</div>
                 </div>
                 <canvas id="simCanvas"></canvas>
             </div>
         </div>
 
+        <!-- Lower Panel: 6-Slide Horizontal Scroll Deck Footer -->
         <div class="lower-analytics">
             <div id="metrics-bar">
                 <div class="m-card"><div class="m-title">Overall Match Rate</div><div id="v-mr" class="m-val" style="color: var(--accent-green)">--</div></div>
@@ -448,7 +451,13 @@
                 }
 
                 if (cleanPool.length > 0) {
-                    this.target = cleanPool[Math.floor(Math.random() * cleanPool.length)];
+                    // For baselines like Nearest, sort by true geometric proximity inside the isolated transaction loop
+                    if (algo === "Nearest") {
+                        cleanPool.sort((a, b) => Math.hypot(a.x - this.x, a.y - this.y) - Math.hypot(b.x - this.x, b.y - this.y));
+                        this.target = cleanPool[0];
+                    } else {
+                        this.target = cleanPool[Math.floor(Math.random() * cleanPool.length)];
+                    }
                 } else {
                     this.target = stations[Math.floor(Math.random() * stations.length)];
                 }
@@ -516,7 +525,14 @@
             }
 
             for(let j=0; j < 24; j++) {
-                vehicles.push(new VehicleEV(Math.random() * canvas.width, canvas.height - 40));
+                // Scatter spawn coordinates dynamically across the screen margins to break alignment clustering
+                let startX = Math.random() * canvas.width;
+                let startY = canvas.height - 20 - (Math.random() * 80);
+                if (j % 2 === 0) {
+                    startX = j % 4 === 0 ? 20 : canvas.width - 20;
+                    startY = Math.random() * canvas.height;
+                }
+                vehicles.push(new VehicleEV(startX, startY));
             }
             vehicles.forEach(v => v.reassignTarget(algo));
         }
