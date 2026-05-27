@@ -7,38 +7,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --panel-bg: #1e293b;
-            --accent-blue: #38bdf8;
-            --accent-green: #4ade80;
-            --accent-red: #f87171;
-            --accent-orange: #fb923c;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-slate: #f1f5f9;
+            --panel-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-blue: #0284c7;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --accent-orange: #ea580c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
+            background-color: var(--bg-slate);
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow-y: auto; /* Allow whole dashboard scrolling if needed */
+            overflow-y: auto;
         }
 
         header {
-            background-color: #0b0f19;
+            background-color: #ffffff;
             padding: 1rem 2rem;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         header h1 { font-size: 1.25rem; font-weight: 600; color: var(--accent-blue); }
-        .badge { background: #334155; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; }
+        .badge { background: var(--bg-slate); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; border: 1px solid var(--border-color); }
 
         .dashboard-container {
             display: flex;
@@ -49,15 +50,15 @@
         .upper-workspace {
             display: flex;
             height: 50vh;
-            min-height: 400px;
-            border-bottom: 2px solid #334155;
+            min-height: 420px;
+            border-bottom: 2px solid var(--border-color);
         }
 
         /* Sidebar Configurations */
         #controls {
             width: 320px;
-            background-color: #111827;
-            border-right: 1px solid #334155;
+            background-color: #ffffff;
+            border-right: 1px solid var(--border-color);
             padding: 1.25rem;
             display: flex;
             flex-direction: column;
@@ -66,10 +67,10 @@
         }
 
         .control-group { display: flex; flex-direction: column; gap: 0.4rem; }
-        label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
         select {
-            background-color: var(--panel-bg);
-            border: 1px solid #475569;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 0.55rem;
             border-radius: 6px;
@@ -80,7 +81,7 @@
         select:focus { border-color: var(--accent-blue); }
 
         .btn {
-            background-color: #2563eb;
+            background-color: var(--accent-blue);
             color: white;
             border: none;
             padding: 0.7rem;
@@ -89,14 +90,14 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .btn:hover { background-color: #1d4ed8; }
-        .btn-stop { background-color: #dc2626; }
+        .btn:hover { background-color: #0369a1; }
+        .btn-stop { background-color: var(--accent-red); }
         .btn-stop:hover { background-color: #b91c1c; }
 
         #canvas-area {
             flex: 1;
             position: relative;
-            background-color: #090d16;
+            background-color: #e2e8f0;
         }
 
         canvas { display: block; width: 100%; height: 100%; }
@@ -105,39 +106,57 @@
             position: absolute;
             top: 1rem;
             left: 1rem;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             padding: 0.6rem 0.8rem;
             border-radius: 6px;
-            border: 1px solid #334155;
+            border: 1px solid var(--border-color);
             font-size: 0.75rem;
             pointer-events: none;
             display: flex;
             flex-direction: column;
             gap: 0.3rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .legend-item { display: flex; align-items: center; gap: 0.5rem; }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        /* Lower Analytical Workspace */
+        /* Lower Panel Analytics */
         .lower-analytics {
-            background-color: #0f172a;
+            background-color: var(--bg-slate);
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
 
+        #metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .m-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .m-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.15rem; font-weight: 600; }
+        .m-val { font-size: 1.25rem; font-weight: 700; }
+
         /* Tab Layout Controller */
         .tab-row {
             display: flex;
             gap: 0.5rem;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.5rem;
         }
         .tab-btn {
-            background: #1e293b;
+            background: #ffffff;
             color: var(--text-muted);
-            border: 1px solid #334155;
+            border: 1px solid var(--border-color);
             padding: 0.5rem 1rem;
             border-radius: 6px;
             font-size: 0.85rem;
@@ -145,37 +164,22 @@
             font-weight: 500;
             transition: all 0.2s;
         }
-        .tab-btn:hover { background: #334155; color: var(--text-main); }
+        .tab-btn:hover { background: #f8fafc; color: var(--text-main); }
         .tab-btn.active {
-            background: #2563eb;
+            background: var(--accent-blue);
             color: white;
-            border-color: #2563eb;
+            border-color: var(--accent-blue);
         }
 
         .chart-wrapper {
-            background-color: var(--panel-bg);
-            border: 1px solid #334155;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1.5rem;
             height: 340px;
             position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-
-        #metrics-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        .m-card {
-            background: #111827;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 0.6rem 1rem;
-            text-align: center;
-        }
-        .m-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.15rem;}
-        .m-val { font-size: 1.25rem; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -184,7 +188,7 @@
         <div>
             <h1>Reputation-Based EV Charging Network Simulation</h1>
         </div>
-        <div class="badge">System Status: <span id="sim-status" style="color: var(--accent-green)">Ready</span></div>
+        <div class="badge">System Status: <span id="sim-status" style="color: var(--accent-green); font-weight:600;">Ready</span></div>
     </header>
 
     <div class="dashboard-container">
@@ -235,11 +239,12 @@
 
             <div id="canvas-area">
                 <div id="legend">
-                    <div class="legend-item"><span class="dot" style="background: #4ade80;"></span> Honest Charging Node</div>
-                    <div class="legend-item"><span class="dot" style="background: #f87171;"></span> Active Malicious Node</div>
+                    <div class="legend-item"><span class="dot" style="background: #16a34a;"></span> Honest Charging Node</div>
+                    <div class="legend-item"><span class="dot" style="background: #dc2626;"></span> Active Malicious Node</div>
                     <div class="legend-item"><span class="dot" style="background: #7f1d1d;"></span> Blacklisted Adversary (Isolated)</div>
-                    <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> Vehicle Requesting/Routing</div>
-                    <div class="legend-item"><span class="dot" style="background: #fb923c;"></span> Match Connection Drop Encountered</div>
+                    <div class="legend-item"><span class="dot" style="background: #0284c7;"></span> Vehicle Transiting (Headlights Active)</div>
+                    <div class="legend-item"><span class="dot" style="background: #64748b;"></span> Vehicle Queued / Docked (Headlights Off)</div>
+                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Match Connection Drop Encountered</div>
                 </div>
                 <canvas id="simCanvas"></canvas>
             </div>
@@ -329,7 +334,7 @@
         let animationFrameId;
         let isSimulating = false;
         let currentChartObj = null;
-        let activeGraphMetric = 'drops'; // Default lower panel layout tab
+        let activeGraphMetric = 'drops';
 
         let stations = [];
         let vehicles = [];
@@ -342,49 +347,60 @@
         resizeCanvas();
 
         class ChargingStation {
-            constructor(x, y, isMalicious) {
+            constructor(id, x, y, isMalicious) {
+                this.id = id;
                 this.x = x;
                 this.y = y;
                 this.isMalicious = isMalicious;
                 this.isBlacklisted = false;
+                this.queue = []; // Array tracking physical vehicles queued at this node
             }
             draw() {
-                ctx.fillStyle = "#4b5563";
-                ctx.fillRect(this.x - 7, this.y - 12, 14, 24);
-                ctx.fillStyle = "#0f172a";
-                ctx.fillRect(this.x - 5, this.y - 10, 10, 5);
+                // Main chassis
+                ctx.fillStyle = "#64748b";
+                ctx.fillRect(this.x - 10, this.y - 16, 20, 32);
                 
+                // Charger screen window
+                ctx.fillStyle = "#1e293b";
+                ctx.fillRect(this.x - 7, -13 + this.y, 14, 8);
+                
+                // Status color node dot
                 if (this.isBlacklisted) {
-                    ctx.fillStyle = "#7f1d1d"; // Dead node
+                    ctx.fillStyle = "#7f1d1d"; // Blocked adversary color
                 } else {
-                    ctx.fillStyle = this.isMalicious ? "#f87171" : "#4ade80";
+                    ctx.fillStyle = this.isMalicious ? "#dc2626" : "#16a34a";
                 }
                 ctx.beginPath();
-                ctx.arc(this.x, this.y + 2, 3, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y + 6, 4, 0, Math.PI * 2);
                 ctx.fill();
+
+                // Draw a small label indicator identifying station ID context
+                ctx.fillStyle = varTextMuted();
+                ctx.font = "bold 9px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("CP-" + this.id, this.x, this.y - 20);
             }
         }
 
+        function varTextMuted() { return "#64748b"; }
+
         class VehicleEV {
             constructor(x, y) {
-                this.resetCoords(x, y);
-                this.speed = 1.8;
-                this.alertTimer = 0;
-            }
-            resetCoords(x, y) {
                 this.x = x;
                 this.y = y;
                 this.target = null;
-                this.status = 'searching'; // searching, linked, dropped
+                this.speed = 2.0;
+                this.status = 'transiting'; // transiting, queued, docked, dropped
                 this.angle = 0;
                 this.bounceX = null;
                 this.bounceY = null;
+                this.alertTimer = 0;
             }
             update() {
                 const algo = document.getElementById('algorithm').value;
                 
-                // If dropped, execute a routing turnaround penalty pathing maneuver
                 if (this.status === 'dropped' && this.bounceX !== null) {
+                    // Turnaround penalty loop maneuver path tracking execution
                     let dx = this.bounceX - this.x;
                     let dy = this.bounceY - this.y;
                     let dist = Math.hypot(dx, dy);
@@ -394,74 +410,134 @@
                         this.x += (dx / dist) * this.speed;
                         this.y += (dy / dist) * this.speed;
                     } else {
-                        // Turned around, clear bounce target and re-query a node assignment map
                         this.bounceX = null;
                         this.bounceY = null;
-                        this.status = 'searching';
+                        this.status = 'transiting';
                         this.reassignTarget(algo);
                     }
                 } else if (this.target) {
-                    let dx = this.target.x - this.x;
-                    let dy = this.target.y - this.y;
-                    let dist = Math.hypot(dx, dy);
-                    this.angle = Math.atan2(dy, dx);
+                    // Calculate structured position offset targets matching stack sequence inside station queue
+                    let qIndex = this.target.queue.indexOf(this);
                     
-                    if (dist > 15) {
+                    // If vehicle isn't currently placed inside the station array queue object, join it
+                    if (qIndex === -1) {
+                        this.target.queue.push(this);
+                        qIndex = this.target.queue.indexOf(this);
+                    }
+
+                    // Geometric assignment calculations matching spacing vectors
+                    let targetX = this.target.x;
+                    let targetY = this.target.y + 24 + (qIndex * 16); // Linear vertical stack array pattern spacing
+
+                    let dx = targetX - this.x;
+                    let dy = targetY - this.y;
+                    let dist = Math.hypot(dx, dy);
+                    
+                    if (dist > 3) {
+                        this.status = 'transiting';
+                        this.angle = Math.atan2(dy, dx);
                         this.x += (dx / dist) * this.speed;
                         this.y += (dy / dist) * this.speed;
                     } else {
-                        // Handshake point boundary interaction reached
-                        if (this.target.isMalicious && !this.target.isBlacklisted) {
-                            this.status = 'dropped';
-                            this.alertTimer = 35;
-                            
-                            if (algo.includes("Reputation")) {
-                                this.target.isBlacklisted = true; // Secure isolation block
-                                this.status = 'searching';
-                                this.reassignTarget(algo);
+                        // Position point reached! Transition state configuration profiles
+                        if (qIndex === 0) {
+                            // Active execution bay processing
+                            if (this.target.isMalicious && !this.target.isBlacklisted) {
+                                this.status = 'dropped';
+                                this.alertTimer = 35;
+                                
+                                // Eject node from array queue immediately on failure trigger execution
+                                this.removeFromCurrentQueue();
+
+                                if (algo.includes("Reputation")) {
+                                    this.target.isBlacklisted = true; // Isolate node adversary properties
+                                    this.status = 'transiting';
+                                    this.reassignTarget(algo);
+                                } else {
+                                    // Generate turnaround escape coordinate targets vector properties
+                                    this.bounceX = this.x - Math.cos(this.angle) * 70 + (Math.random() - 0.5) * 30;
+                                    this.bounceY = this.y - Math.sin(this.angle) * 70 + (Math.random() - 0.5) * 30;
+                                }
                             } else {
-                                // Baseline tracking penalty route: flee randomly and try again
-                                this.bounceX = this.x - Math.cos(this.angle) * 60 + (Math.random() - 0.5) * 40;
-                                this.bounceY = this.y - Math.sin(this.angle) * 60 + (Math.random() - 0.5) * 40;
+                                this.status = 'docked';
                             }
                         } else {
-                            this.status = 'linked';
+                            this.status = 'queued'; // Hold processing state safely behind active server channel
                         }
                     }
                 }
                 if (this.alertTimer > 0) this.alertTimer--;
             }
+            removeFromCurrentQueue() {
+                if (this.target) {
+                    let idx = this.target.queue.indexOf(this);
+                    if (idx !== -1) {
+                        this.target.queue.splice(idx, 1);
+                    }
+                }
+            }
             reassignTarget(algo) {
+                this.removeFromCurrentQueue();
                 let cleanPool = stations.filter(s => !s.isMalicious && !s.isBlacklisted);
                 if (algo.includes("Reputation") && cleanPool.length > 0) {
                     this.target = cleanPool[Math.floor(Math.random() * cleanPool.length)];
                 } else {
                     this.target = stations[Math.floor(Math.random() * stations.length)];
                 }
+                this.target.queue.push(this);
             }
             draw() {
-                let color = "#38bdf8";
-                if (this.status === 'dropped') color = "#fb923c";
-                if (this.status === 'linked') color = "#4ade80";
+                // Determine layout profile colors attributes based on tracking state transitions
+                let chassisColor = "#0284c7";
+                if (this.status === 'dropped') chassisColor = "#ea580c";
+                if (this.status === 'queued' || this.status === 'docked') chassisColor = "#64748b";
                 
+                // Headlight system: Cones are strictly active ONLY during structural transiting execution
+                if (this.status === 'transiting' || this.status === 'dropped') {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle);
+
+                    // Dual asymmetrical gradient cones configurations
+                    let beamGradient = ctx.createRadialGradient(8, 0, 2, 35, 0, 30);
+                    beamGradient.addColorStop(0, "rgba(254, 240, 138, 0.45)"); // Soft warm yellow core
+                    beamGradient.addColorStop(0.4, "rgba(254, 240, 138, 0.15)");
+                    beamGradient.addColorStop(1, "rgba(254, 240, 138, 0)");
+
+                    ctx.fillStyle = beamGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(8, -2);
+                    ctx.lineTo(45, -16);
+                    ctx.lineTo(45, 16);
+                    ctx.lineTo(8, 2);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Render main top-down isometric passenger chassis block
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
                 
-                // Tracing high-fidelity 2D isometric sedan silhouettes vectors arrays
-                ctx.fillStyle = color;
+                ctx.fillStyle = chassisColor;
                 ctx.beginPath();
                 ctx.roundRect(-10, -5, 20, 10, 2);
                 ctx.fill();
                 
-                ctx.fillStyle = "rgba(15, 23, 42, 0.7)";
-                ctx.fillRect(-2, -3, 7, 6);
+                // Cabin windshield mask overlay layout lines
+                ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+                ctx.fillRect(1, -3, 4, 6);
+                ctx.fillStyle = "rgba(15, 23, 42, 0.6)";
+                ctx.fillRect(-3, -3, 4, 6);
+                
                 ctx.restore();
 
+                // Shock ripple effect context hook
                 if (this.alertTimer > 0) {
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, 30 - (this.alertTimer / 1.2), 0, Math.PI * 2);
-                    ctx.strokeStyle = "rgba(251, 146, 60, " + (this.alertTimer / 35) + ")";
+                    ctx.arc(this.x, this.y, 35 - (this.alertTimer / 1.1), 0, Math.PI * 2);
+                    ctx.strokeStyle = "rgba(234, 88, 12, " + (this.alertTimer / 35) + ")";
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 }
@@ -471,32 +547,35 @@
         function buildEntitiesSpace() {
             stations = [];
             vehicles = [];
+            
             const malPercentStr = document.getElementById('malicious-cp').value;
             const malRatio = parseInt(malPercentStr) / 100;
-
-            // Render Node Grid Map Topology locations coordinates
-            for(let i=0; i < 14; i++) {
-                let x = 120 + Math.random() * (canvas.width - 240);
-                let y = 80 + Math.random() * (canvas.height - 160);
-                stations.push(new ChargingStation(x, y, Math.random() < malRatio));
-            }
-
-            // Instantiation of EV request load vectors
-            for(let j=0; j < 22; j++) {
-                vehicles.push(new VehicleEV(Math.random() * canvas.width, Math.random() * canvas.height));
-            }
-
-            // Sync structural parameters properties elements updates
-            const dataset = document.getElementById('dataset').value;
             const algo = document.getElementById('algorithm').value;
+
+            // Generate Map Dock Coordinates Nodes Topologies
+            for(let i=1; i <= 10; i++) {
+                let x = 120 + (canvas.width - 240) * (i / 11) + (Math.random() - 0.5) * 20;
+                let y = 100 + Math.random() * (canvas.height - 240);
+                stations.push(new ChargingStation(i, x, y, Math.random() < malRatio));
+            }
+
+            // Create Fleet vehicles vectors array instances
+            for(let j=0; j < 25; j++) {
+                let rx = Math.random() * canvas.width;
+                let ry = canvas.height - 30 - (Math.random() * 50); // Start processing low down on light ground profile
+                vehicles.push(new VehicleEV(rx, ry));
+            }
+
+            // Sync empirical performance log data directly back into tracking metrics cards elements
+            const dataset = document.getElementById('dataset').value;
             const dropRate = document.getElementById('drop-rate').value;
 
-            let pool = performanceRepository[malPercentStr] || performanceRepository["10%"];
+            let pool = empiricalRepository[malPercentStr] || empiricalRepository["10%"];
             let slice = pool[dataset] && pool[dataset][algo] ? pool[dataset][algo][dropRate] : null;
 
             if(!slice) {
                 let isProposed = algo.includes("Reputation");
-                slice = { mr: isProposed ? "100.0%" : "96.4%", wait: "54.2", cost:"400", lat: isProposed?"2400":"18000", drops: isProposed?12:450 };
+                slice = { mr: isProposed ? "100.0%" : "94.8%", wait: "53.0", cost:"350", lat: isProposed?"2400":"71000", drops: isProposed?17:88000 };
             }
 
             document.getElementById('v-mr').innerText = slice.mr;
@@ -504,7 +583,7 @@
             document.getElementById('v-lat').innerText = slice.lat + " ms";
             document.getElementById('v-wait').innerText = slice.wait;
 
-            // Trigger initial coordinate assignment targeting loops tracking
+            // Initialize targeting channels configuration pipelines maps
             vehicles.forEach((ev) => ev.reassignTarget(algo));
         }
 
@@ -513,15 +592,14 @@
             const dataset = document.getElementById('dataset').value;
             const malPercentStr = document.getElementById('malicious-cp').value;
             
-            // Extract the data context dictionary arrays loops variables bounds
             const labelsX = ["10% Drop", "30% Drop", "50% Drop", "70% Drop", "100% Drop"];
             const algorithmsList = ["Reputation based Gale shapley", "FCFS", "Nearest", "Base Gale Shapley", "Greedy"];
             const colorMapping = {
-                "Reputation based Gale shapley": "#38bdf8", // Neon Sky blue
-                "FCFS": "#a855f7",
-                "Nearest": "#fb7185",
-                "Base Gale Shapley": "#e2e8f0",
-                "Greedy": "#f59e0b"
+                "Reputation based Gale shapley": "#0284c7", // Bright Sky Blue
+                "FCFS": "#7c3aed",
+                "Nearest": "#db2777",
+                "Base Gale Shapley": "#64748b",
+                "Greedy": "#ea580c"
             };
 
             const datasetsChart = [];
@@ -538,19 +616,18 @@
                             else if (activeGraphMetric === 'latency') dataPoints.push(parseFloat(cell.lat));
                             else dataPoints.push(parseFloat(cell.wait));
                         } else {
-                            dataPoints.push(null); // Skip if array parameters boundary falls thin
+                            dataPoints.push(null);
                         }
                     });
 
-                    // Only map to plot if tracking array row contains valid evaluated arrays
                     if(dataPoints.some(v => v !== null)) {
                         datasetsChart.push({
                             label: algo === "Reputation based Gale shapley" ? "Proposed GS (Reputation)" : algo,
                             data: dataPoints,
                             borderColor: colorMapping[algo],
-                            backgroundColor: colorMapping[algo] + "15",
+                            backgroundColor: colorMapping[algo] + "0a",
                             borderWidth: algo.includes("Reputation") ? 4 : 2,
-                            tension: 0.15,
+                            tension: 0.1,
                             fill: algo.includes("Reputation")
                         });
                     }
@@ -566,11 +643,11 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#f8fafc', font: { family: 'Segoe UI' } } }
+                        legend: { labels: { color: '#0f172a', font: { family: 'Segoe UI', weight: '600' } } }
                     },
                     scales: {
-                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' }, type: activeGraphMetric === 'drops' ? 'logarithmic' : 'linear' }
+                        x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' }, type: activeGraphMetric === 'drops' ? 'logarithmic' : 'linear' }
                     }
                 }
             });
@@ -584,19 +661,36 @@
         }
 
         function loop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Background clearing over clean light slate profile terrain layer canvas
+            ctx.fillStyle = "#cbd5e1";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw baseline interconnection communication paths layers
-            vehicles.forEach(ev => {
-                if (ev.target && ev.status !== 'dropped') {
-                    ctx.beginPath();
-                    ctx.moveTo(ev.x, ev.y);
-                    ctx.lineTo(ev.target.x, ev.target.y);
-                    ctx.strokeStyle = ev.status === 'linked' ? "rgba(74, 222, 128, 0.05)" : "rgba(56, 189, 248, 0.1)";
-                    ctx.stroke();
-                }
-            });
+            // Draw subtle vector alignment lines cross hatch grid background matrix geometry layout
+            ctx.strokeStyle = "#e2e8f0";
+            ctx.lineWidth = 1;
+            const stepGrid = 40;
+            for(let x=0; x<canvas.width; x+=stepGrid) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for(let y=0; y<canvas.height; y+=stepGrid) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
 
+            // Draw link vectors layers indicators paths mapping
+            if (isSimulating) {
+                vehicles.forEach(ev => {
+                    if (ev.target && ev.status === 'transiting') {
+                        ctx.beginPath();
+                        ctx.moveTo(ev.x, ev.y);
+                        ctx.lineTo(ev.target.x, ev.target.y);
+                        ctx.strokeStyle = "rgba(2, 132, 199, 0.08)";
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            // Render asset stacks layers structures sequentially
             stations.forEach(s => s.draw());
             vehicles.forEach(v => { v.update(); v.draw(); });
 
@@ -611,8 +705,8 @@
                 isSimulating = true;
                 btn.innerText = "Reset Simulation Space";
                 btn.classList.add('btn-stop');
-                document.getElementById('sim-status').innerText = "Simulating Real-Time Vector Sweeps";
-                document.getElementById('sim-status').style.color = "var(--accent-blue)";
+                document.getElementById('sim-status').innerText = "Active Matrix Engine Sweep Simulation";
+                document.getElementById('sim-status').style.color = "var(--accent-orange)";
                 
                 buildEntitiesSpace();
                 renderLowerChartFramework();
@@ -633,7 +727,6 @@
             }
         });
 
-        // Trigger dynamic context chart tracking initialization on first browser engine execution cycle
         window.addEventListener('load', () => {
             resizeCanvas();
             renderLowerChartFramework();
