@@ -8,7 +8,7 @@
     <style>
         :root {
             --bg-slate: #f8fafc;
-            --canvas-bg: #e2e8f0;
+            --canvas-bg: #cbd5e1;
             --panel-bg: #ffffff;
             --border-color: #cbd5e1;
             --text-main: #0f172a;
@@ -161,9 +161,9 @@
         .carousel-viewdeck::-webkit-scrollbar { height: 8px; }
         .carousel-viewdeck::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-        /* Individual Instagram Post/Graph Slide Card Frame Layout */
+        /* Individual Instagram Post Card Frame */
         .chart-card-frame {
-            flex: 0 0 420px; /* Rigid squared Instagram aspect ratio profile styling */
+            flex: 0 0 420px;
             background-color: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -217,19 +217,19 @@
                 <div class="control-group">
                     <label for="malicious-cp">Malicious Penetration (CP %)</label>
                     <select id="malicious-cp" onchange="syncUIElements()">
-                        <option value="10%">10% Malicious Nodes</option>
-                        <option value="30%">30% Malicious Nodes</option>
+                        <option value="10%">10% Malicious Nodes (1/10)</option>
+                        <option value="30%">30% Malicious Nodes (3/10)</option>
                     </select>
                 </div>
 
                 <div class="control-group">
                     <label for="drop-rate">Adversarial Packet Drop Rate %</label>
                     <select id="drop-rate" onchange="syncUIElements()">
-                        <option value="10%">10% Drop</option>
-                        <option value="30%">30% Drop</option>
-                        <option value="50%">50% Drop</option>
-                        <option value="70%">70% Drop</option>
-                        <option value="100%">100% Drop</option>
+                        <option value="10%">10% Drop Rate</option>
+                        <option value="30%">30% Drop Rate</option>
+                        <option value="50%">50% Drop Rate</option>
+                        <option value="70%">70% Drop Rate</option>
+                        <option value="100%">100% Drop Rate</option>
                     </select>
                 </div>
 
@@ -238,12 +238,12 @@
 
             <div id="canvas-area">
                 <div id="legend">
-                    <div class="legend-item"><span class="dot" style="background: #16a34a;"></span> Honest Charging Node</div>
-                    <div class="legend-item"><span class="dot" style="background: #dc2626;"></span> Active Malicious Node</div>
-                    <div class="legend-item"><span class="dot" style="background: #7f1d1d;"></span> Blacklisted Adversary (Isolated)</div>
+                    <div class="legend-item"><span class="dot" style="background: #16a34a;"></span> Honest Charging Node (CP)</div>
+                    <div class="legend-item"><span class="dot" style="background: #dc2626;"></span> Malicious Charging Node (CP)</div>
+                    <div class="legend-item"><span class="dot" style="background: #7f1d1d;"></span> Blacklisted Malicious Node (Proposed System Block)</div>
                     <div class="legend-item"><span class="dot" style="background: #0284c7;"></span> Vehicle Transiting (Headlights Active)</div>
                     <div class="legend-item"><span class="dot" style="background: #64748b;"></span> Vehicle Queued / Docked (Headlights Off)</div>
-                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Connection Drop Encountered</div>
+                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Drop Event (Fleeing / Recalculating Route)</div>
                 </div>
                 <canvas id="simCanvas"></canvas>
             </div>
@@ -258,27 +258,22 @@
             </div>
 
             <div class="carousel-viewdeck">
-                
                 <div class="chart-card-frame">
                     <h3>1. Connection Drop Sweep (Logarithmic)</h3>
                     <div class="canvas-holder"><canvas id="chartDrops"></canvas></div>
                 </div>
-
                 <div class="chart-card-frame">
                     <h3>2. Execution Latency Horizon (Logarithmic)</h3>
                     <div class="canvas-holder"><canvas id="chartLatency"></canvas></div>
                 </div>
-
                 <div class="chart-card-frame">
                     <h3>3. Network Bipartite Satisfaction Matrix (%)</h3>
                     <div class="canvas-holder"><canvas id="chartSatisfaction"></canvas></div>
                 </div>
-
                 <div class="chart-card-frame">
                     <h3>4. Average Structural Waiting Footprint</h3>
                     <div class="canvas-holder"><canvas id="chartWaiting"></canvas></div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -346,8 +341,6 @@
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let isSimulating = false;
-        
-        // Tracking array definitions for instantiated charts instances
         let activeCharts = {};
 
         let stations = [];
@@ -369,8 +362,11 @@
             draw() {
                 ctx.fillStyle = "#64748b"; ctx.fillRect(this.x - 10, this.y - 16, 20, 32);
                 ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x - 7, this.y - 13, 14, 8);
+                
+                // Color coding rules: honest green, malicious red, blacklisted deep dark red
                 ctx.fillStyle = this.isBlacklisted ? "#7f1d1d" : (this.isMalicious ? "#dc2626" : "#16a34a");
                 ctx.beginPath(); ctx.arc(this.x, this.y + 6, 4, 0, Math.PI * 2); ctx.fill();
+                
                 ctx.fillStyle = "#64748b"; ctx.font = "bold 9px sans-serif"; ctx.textAlign = "center";
                 ctx.fillText("CP-" + this.id, this.x, this.y - 20);
             }
@@ -378,12 +374,16 @@
 
         class VehicleEV {
             constructor(x, y) {
-                this.x = x; this.y = y; this.target = null; this.speed = 2.2;
+                this.x = x; this.y = y; this.target = null; this.speed = 2.4;
                 this.status = 'transiting'; this.angle = 0;
                 this.bounceX = null; this.bounceY = null; this.alertTimer = 0;
             }
             update() {
                 const algo = document.getElementById('algorithm').value;
+                const dropRateStr = document.getElementById('drop-rate').value;
+                const dropProbability = parseInt(dropRateStr) / 100;
+
+                // Turnaround trajectory penalty pathing if dropped by adversary node
                 if (this.status === 'dropped' && this.bounceX !== null) {
                     let dx = this.bounceX - this.x; let dy = this.bounceY - this.y;
                     let dist = Math.hypot(dx, dy); this.angle = Math.atan2(dy, dx);
@@ -397,19 +397,29 @@
                     let dy = (this.target.y + 24 + (qIndex * 16)) - this.y;
                     let dist = Math.hypot(dx, dy);
                     
-                    if (dist > 3) {
+                    if (dist > 4) {
                         this.status = 'transiting'; this.angle = Math.atan2(dy, dx);
                         this.x += (dx / dist) * this.speed; this.y += (dy / dist) * this.speed;
                     } else {
+                        // Vehicle arrived at its queue slot coordinate position
                         if (qIndex === 0) {
                             if (this.target.isMalicious && !this.target.isBlacklisted) {
-                                this.status = 'dropped'; this.alertTimer = 35;
-                                this.removeFromQueue();
-                                if (algo.includes("Reputation")) {
-                                    this.target.isBlacklisted = true; this.status = 'transiting'; this.reassignTarget(algo);
+                                // Baseline check: Probabilistic Drop Check execution rule matrix
+                                if (Math.random() < dropProbability) {
+                                    this.status = 'dropped'; this.alertTimer = 35;
+                                    this.removeFromQueue();
+
+                                    if (algo.includes("Reputation")) {
+                                        this.target.isBlacklisted = true; 
+                                        this.status = 'transiting'; 
+                                        this.reassignTarget(algo);
+                                    } else {
+                                        // Blind baselines: Turn around in a penalty path, clear out, then query back in blindly
+                                        this.bounceX = this.x - Math.cos(this.angle) * 70 + (Math.random() - 0.5) * 40;
+                                        this.bounceY = this.y - Math.sin(this.angle) * 70 + (Math.random() - 0.5) * 40;
+                                    }
                                 } else {
-                                    this.bounceX = this.x - Math.cos(this.angle) * 60 + (Math.random() - 0.5) * 30;
-                                    this.bounceY = this.y - Math.sin(this.angle) * 60 + (Math.random() - 0.5) * 30;
+                                    this.status = 'docked'; // Lucky match connection survived drop probability barrier channel
                                 }
                             } else { this.status = 'docked'; }
                         } else { this.status = 'queued'; }
@@ -425,14 +435,23 @@
             }
             reassignTarget(algo) {
                 this.removeFromQueue();
-                let pool = stations.filter(s => !s.isMalicious && !s.isBlacklisted);
-                this.target = (algo.includes("Reputation") && pool.length > 0) ? pool[Math.floor(Math.random() * pool.length)] : stations[Math.floor(Math.random() * stations.length)];
+                let cleanPool = stations.filter(s => !s.isBlacklisted);
+                
+                // Security enforcement constraint check context rule
+                if (algo.includes("Reputation")) {
+                    cleanPool = cleanPool.filter(s => !s.isMalicious);
+                }
+
+                if (cleanPool.length > 0) {
+                    this.target = cleanPool[Math.floor(Math.random() * cleanPool.length)];
+                } else {
+                    this.target = stations[Math.floor(Math.random() * stations.length)];
+                }
                 this.target.queue.push(this);
             }
             draw() {
                 let color = this.status === 'dropped' ? "#ea580c" : ((this.status === 'queued' || this.status === 'docked') ? "#64748b" : "#0284c7");
                 
-                // Headlight cones gradient configuration (Off inside queue or docks boundaries)
                 if (this.status === 'transiting' || this.status === 'dropped') {
                     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
                     let beam = ctx.createRadialGradient(8, 0, 2, 35, 0, 25);
@@ -472,18 +491,27 @@
             document.getElementById('v-lat').innerText = slice.lat + " ms";
             document.getElementById('v-wait').innerText = slice.wait;
             
-            // Auto-refresh chart curves matching background parameter sweeps configuration switches
             renderMasterCarouselDecks();
         }
 
         function initSimulationSpace() {
             stations = []; vehicles = [];
-            const malRatio = parseInt(document.getElementById('malicious-cp').value) / 100;
+            const malPercentStr = document.getElementById('malicious-cp').value;
             const algo = document.getElementById('algorithm').value;
 
-            for(let i=1; i <= 9; i++) {
-                stations.push(new ChargingStation(i, 140 + (canvas.width - 280) * (i / 10), 120 + Math.random() * (canvas.height - 240), Math.random() < malRatio));
+            // Generate exactly 10 nodes across space matching hard limits rules explicitly
+            for(let i=1; i <= 10; i++) {
+                let x = 120 + (canvas.width - 240) * (i / 11);
+                let y = 120 + Math.random() * (canvas.height - 240);
+                
+                // Hardcoded index distributions rules: 10% translates to index 3, 30% maps to index 3, 6 and 9
+                let isMalicious = false;
+                if (malPercentStr === "10%" && i === 3) isMalicious = true;
+                if (malPercentStr === "30%" && (i === 3 || i === 6 || i === 9)) isMalicious = true;
+
+                stations.push(new ChargingStation(i, x, y, isMalicious));
             }
+
             for(let j=0; j < 24; j++) {
                 vehicles.push(new VehicleEV(Math.random() * canvas.width, canvas.height - 40));
             }
@@ -504,12 +532,10 @@
             let pool = empiricalRepository[malPercentStr] || empiricalRepository["10%"];
             let dsContext = pool[dataset] || pool["nyserda"];
 
-            // Helper to generate chart baseline processing logic
             function extractLineData(algo, field) {
                 return ratesX.map(rate => {
                     let cell = dsContext[algo] ? dsContext[algo][rate] : null;
                     if(!cell) return null;
-                    if(field === 'mr' || field === 'pmr' || field === 'cmr') return parseFloat(cell[field]);
                     return parseFloat(cell[field]);
                 });
             }
@@ -531,7 +557,6 @@
             recreateChart('chartLatency', 'logarithmic', 'Latency (ms)', latDatasets, ratesX);
 
             // --- 3. Dynamic Multi-Variable Satisfaction Rates Chart (Linear %) ---
-            // Unpack exclusive Proscriber vs Consumer bipartite data points
             let satDatasets = [
                 { label: "Overall Match Rate", data: extractLineData("Reputation based Gale shapley", "mr"), borderColor: "#16a34a", borderWidth: 3 },
                 { label: "Proscriber Match Rate", data: extractLineData("Reputation based Gale shapley", "pmr"), borderColor: "#2563eb", borderWidth: 2, borderDash: [5, 5] },
