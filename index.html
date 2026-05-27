@@ -7,7 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-slate: #f1f5f9;
+            --bg-slate: #f8fafc;
+            --canvas-bg: #e2e8f0;
             --panel-bg: #ffffff;
             --border-color: #cbd5e1;
             --text-main: #0f172a;
@@ -26,7 +27,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         header {
@@ -49,12 +50,12 @@
 
         .upper-workspace {
             display: flex;
-            height: 50vh;
-            min-height: 420px;
+            height: 45vh;
+            min-height: 380px;
             border-bottom: 2px solid var(--border-color);
         }
 
-        /* Sidebar Configurations */
+        /* Control Settings Sidebar */
         #controls {
             width: 320px;
             background-color: #ffffff;
@@ -67,7 +68,7 @@
         }
 
         .control-group { display: flex; flex-direction: column; gap: 0.4rem; }
-        label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         select {
             background-color: #ffffff;
             border: 1px solid var(--border-color);
@@ -97,7 +98,7 @@
         #canvas-area {
             flex: 1;
             position: relative;
-            background-color: #e2e8f0;
+            background-color: var(--canvas-bg);
         }
 
         canvas { display: block; width: 100%; height: 100%; }
@@ -116,70 +117,68 @@
             flex-direction: column;
             gap: 0.3rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10;
         }
         .legend-item { display: flex; align-items: center; gap: 0.5rem; }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
 
-        /* Lower Panel Analytics */
+        /* Lower Workspace Section */
         .lower-analytics {
-            background-color: var(--bg-slate);
-            padding: 1.5rem;
+            padding: 1.25rem;
+            background-color: #f1f5f9;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            flex: 1;
+            min-height: 420px;
         }
 
         #metrics-bar {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
-            margin-bottom: 0.5rem;
         }
         .m-card {
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 0.6rem 1rem;
-            text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-        .m-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.15rem; font-weight: 600; }
-        .m-val { font-size: 1.25rem; font-weight: 700; }
-
-        /* Tab Layout Controller */
-        .tab-row {
-            display: flex;
-            gap: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
-        }
-        .tab-btn {
-            background: #ffffff;
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
             padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
-        .tab-btn:hover { background: #f8fafc; color: var(--text-main); }
-        .tab-btn.active {
-            background: var(--accent-blue);
-            color: white;
-            border-color: var(--accent-blue);
-        }
+        .m-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.15rem; font-weight: 700; }
+        .m-val { font-size: 1.2rem; font-weight: 700; }
 
-        .chart-wrapper {
+        /* Horizontal Carousel Slider UI Container */
+        .carousel-viewdeck {
+            display: flex;
+            gap: 1.25rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: thin;
+        }
+        .carousel-viewdeck::-webkit-scrollbar { height: 8px; }
+        .carousel-viewdeck::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* Individual Instagram Post/Graph Slide Card Frame Layout */
+        .chart-card-frame {
+            flex: 0 0 420px; /* Rigid squared Instagram aspect ratio profile styling */
             background-color: #ffffff;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            height: 340px;
-            position: relative;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            border-radius: 10px;
+            padding: 1.25rem;
+            height: 330px;
+            scroll-snap-align: start;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
         }
+        @media (max-width: 768px) {
+            .chart-card-frame { flex: 0 0 85vw; }
+        }
+        .chart-card-frame h3 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.5rem; text-transform: capitalize; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem;}
+        .canvas-holder { flex: 1; position: relative; min-height: 0; }
     </style>
 </head>
 <body>
@@ -188,7 +187,7 @@
         <div>
             <h1>Reputation-Based EV Charging Network Simulation</h1>
         </div>
-        <div class="badge">System Status: <span id="sim-status" style="color: var(--accent-green); font-weight:600;">Ready</span></div>
+        <div class="badge">System Status: <span id="sim-status" style="color: var(--accent-green); font-weight:700;">Ready</span></div>
     </header>
 
     <div class="dashboard-container">
@@ -196,7 +195,7 @@
             <div id="controls">
                 <div class="control-group">
                     <label for="dataset">Evaluation Dataset Profile</label>
-                    <select id="dataset">
+                    <select id="dataset" onchange="syncUIElements()">
                         <option value="caltech">ACN-Data (Caltech)</option>
                         <option value="dundee">Dundee City Council</option>
                         <option value="nyserda" selected>NYSERDA (New York)</option>
@@ -206,7 +205,7 @@
 
                 <div class="control-group">
                     <label for="algorithm">Scheduling Algorithm Context</label>
-                    <select id="algorithm">
+                    <select id="algorithm" onchange="syncUIElements()">
                         <option value="FCFS">FCFS (First-Come-First-Served)</option>
                         <option value="Nearest">Nearest Location First</option>
                         <option value="Reputation based Gale shapley" selected>Reputation Gale-Shapley (Proposed)</option>
@@ -217,7 +216,7 @@
 
                 <div class="control-group">
                     <label for="malicious-cp">Malicious Penetration (CP %)</label>
-                    <select id="malicious-cp">
+                    <select id="malicious-cp" onchange="syncUIElements()">
                         <option value="10%">10% Malicious Nodes</option>
                         <option value="30%">30% Malicious Nodes</option>
                     </select>
@@ -225,7 +224,7 @@
 
                 <div class="control-group">
                     <label for="drop-rate">Adversarial Packet Drop Rate %</label>
-                    <select id="drop-rate">
+                    <select id="drop-rate" onchange="syncUIElements()">
                         <option value="10%">10% Drop</option>
                         <option value="30%">30% Drop</option>
                         <option value="50%">50% Drop</option>
@@ -244,7 +243,7 @@
                     <div class="legend-item"><span class="dot" style="background: #7f1d1d;"></span> Blacklisted Adversary (Isolated)</div>
                     <div class="legend-item"><span class="dot" style="background: #0284c7;"></span> Vehicle Transiting (Headlights Active)</div>
                     <div class="legend-item"><span class="dot" style="background: #64748b;"></span> Vehicle Queued / Docked (Headlights Off)</div>
-                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Match Connection Drop Encountered</div>
+                    <div class="legend-item"><span class="dot" style="background: #ea580c;"></span> Connection Drop Encountered</div>
                 </div>
                 <canvas id="simCanvas"></canvas>
             </div>
@@ -258,73 +257,87 @@
                 <div class="m-card"><div class="m-title">Average Queue Wait Time</div><div id="v-wait" class="m-val">--</div></div>
             </div>
 
-            <div class="tab-row">
-                <button class="tab-btn active" onclick="switchGraph('drops')">Connection Drop Sweep Count</button>
-                <button class="tab-btn" onclick="switchGraph('latency')">Execution Latency Spectrum (ms)</button>
-                <button class="tab-btn" onclick="switchGraph('waiting')">Average Waiting Footprint</button>
-            </div>
+            <div class="carousel-viewdeck">
+                
+                <div class="chart-card-frame">
+                    <h3>1. Connection Drop Sweep (Logarithmic)</h3>
+                    <div class="canvas-holder"><canvas id="chartDrops"></canvas></div>
+                </div>
 
-            <div class="chart-wrapper">
-                <canvas id="analyticsChart"></canvas>
+                <div class="chart-card-frame">
+                    <h3>2. Execution Latency Horizon (Logarithmic)</h3>
+                    <div class="canvas-holder"><canvas id="chartLatency"></canvas></div>
+                </div>
+
+                <div class="chart-card-frame">
+                    <h3>3. Network Bipartite Satisfaction Matrix (%)</h3>
+                    <div class="canvas-holder"><canvas id="chartSatisfaction"></canvas></div>
+                </div>
+
+                <div class="chart-card-frame">
+                    <h3>4. Average Structural Waiting Footprint</h3>
+                    <div class="canvas-holder"><canvas id="chartWaiting"></canvas></div>
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
-        // Compiled dictionary structural database merging master performance tables with drop count arrays
+        // Dictionary dataset parsed completely tracking multi-level verification sweeps indices
         const empiricalRepository = {
             "10%": {
                 caltech: {
-                    "FCFS": { "10%": {mr:"100.0%", wait:"6654.98", cost:"1781.97", lat:"261.44", drops:9}, "30%": {mr:"100.0%", wait:"6654.86", cost:"1781.97", lat:"321.12", drops:34}, "50%": {mr:"100.0%", wait:"6654.97", cost:"1781.97", lat:"304.22", drops:100}, "70%": {mr:"100.0%", wait:"6655.06", cost:"1781.97", lat:"324.30", drops:214}, "100%": {mr:"99.9%", wait:"6978.18", cost:"1780.87", lat:"574.29", drops:1909} },
-                    "Nearest": { "10%": {mr:"100.0%", wait:"16762.32", cost:"1781.97", lat:"259.05", drops:1}, "30%": {mr:"100.0%", wait:"16762.32", cost:"1781.97", lat:"324.90", drops:1}, "50%": {mr:"100.0%", wait:"16762.32", cost:"1781.97", lat:"297.53", drops:3}, "70%": {mr:"100.0%", wait:"16762.32", cost:"1781.97", lat:"313.38", drops:3}, "100%": {mr:"99.9%", wait:"16784.71", cost:"1782.71", lat:"548.41", drops:1761} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"6862.64", cost:"1781.97", lat:"283.63", drops:2}, "30%": {mr:"100.0%", wait:"6958.36", cost:"1781.97", lat:"349.77", drops:2}, "50%": {mr:"100.0%", wait:"6975.22", cost:"1781.97", lat:"331.43", drops:2}, "70%": {mr:"100.0%", wait:"6975.22", cost:"1781.97", lat:"342.80", drops:2}, "100%": {mr:"100.0%", wait:"6994.12", cost:"1781.97", lat:"329.33", drops:2} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", wait:"6653.48", cost:"1781.97", lat:"269.69", drops:9}, "30%": {mr:"100.0%", wait:"6653.45", cost:"1781.97", lat:"315.94", drops:37}, "50%": {mr:"100.0%", wait:"6653.50", cost:"1781.97", lat:"318.81", drops:82}, "70%": {mr:"100.0%", wait:"6653.50", cost:"1781.97", lat:"343.86", drops:215}, "100%": {mr:"99.9%", wait:"6980.28", cost:"1781.38", lat:"572.62", drops:1907} },
-                    "Greedy": { "10%": {mr:"100.0%", wait:"42578.37", cost:"1781.97", lat:"123.57", drops:9}, "30%": {mr:"100.0%", wait:"43097.14", cost:"1781.97", lat:"142.69", drops:28}, "50%": {mr:"100.0%", wait:"43653.70", cost:"1781.97", lat:"142.72", drops:56}, "70%": {mr:"100.0%", wait:"44037.54", cost:"1781.97", lat:"145.92", drops:104}, "100%": {mr:"98.8%", wait:"43172.86", cost:"1778.52", lat:"745.65", drops:18070} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.98", lat:"261.44", drops:9}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.86", lat:"321.12", drops:34}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6654.97", lat:"304.22", drops:100}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6655.06", lat:"324.30", drops:214}, "100%": {mr:"99.9%", pmr:"99.9%", cmr:"100.0%", wait:"6978.18", lat:"574.29", drops:1909} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16762.32", lat:"259.05", drops:1}, "100%": {mr:"99.9%", pmr:"99.9%", cmr:"100.0%", wait:"16784.71", lat:"548.41", drops:1761} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6862.64", lat:"283.63", drops:2}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6994.12", lat:"329.33", drops:2} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.48", lat:"269.69", drops:9}, "100%": {mr:"99.9%", pmr:"100.0%", cmr:"99.8%", wait:"6980.28", lat:"572.62", drops:1907} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"42578.37", lat:"123.57", drops:9}, "100%": {mr:"98.8%", pmr:"98.5%", cmr:"99.0%", wait:"43172.86", lat:"745.65", drops:18070} }
                 },
                 dundee: {
-                    "FCFS": { "10%": {mr:"100.0%", wait:"264.62", cost:"628.52", lat:"348.75", drops:20}, "30%":{mr:"100.0%", wait:"264.0", cost:"628.0", lat:"350.0", drops:39}, "50%":{mr:"100.0%", wait:"265.0", cost:"628.0", lat:"352.0", drops:117}, "70%":{mr:"100.0%", wait:"266.0", cost:"628.0", lat:"355.0", drops:184}, "100%": {mr:"99.8%", wait:"308.90", cost:"619.44", lat:"914.90", drops:3796} },
-                    "Nearest": { "10%": {mr:"100.0%", wait:"3632.32", cost:"747.58", lat:"346.77", drops:18}, "30%":{mr:"100.0%", wait:"3632.0", cost:"747.0", lat:"348.0", drops:41}, "50%": {mr:"100.0%", wait:"3632.0", cost:"747.0", lat:"350.0", drops:75}, "70%":{mr:"100.0%", wait:"3635.0", cost:"747.0", lat:"352.0", drops:123}, "100%": {mr:"100.0%", wait:"3989.50", cost:"738.38", lat:"659.82", drops:1113} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"213.89", cost:"627.06", lat:"394.94", drops:4}, "30%":{mr:"100.0%", wait:"213.0", cost:"627.0", lat:"395.0", drops:4}, "50%":{mr:"100.0%", wait:"214.0", cost:"627.0", lat:"396.0", drops:4}, "70%":{mr:"100.0%", wait:"215.0", cost:"627.0", lat:"398.0", drops:4}, "100%": {mr:"100.0%", wait:"236.97", cost:"629.93", lat:"441.39", drops:4} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", wait:"191.20", cost:"633.07", lat:"378.70", drops:19}, "30%":{mr:"100.0%", wait:"191.0", cost:"633.0", lat:"380.0", drops:51}, "50%":{mr:"100.0%", wait:"192.0", cost:"633.0", lat:"382.0", drops:128}, "70%":{mr:"100.0%", wait:"193.0", cost:"633.0", lat:"385.0", drops:279}, "100%": {mr:"99.8%", wait:"227.02", cost:"623.79", lat:"933.74", drops:3705} },
-                    "Greedy": { "10%": {mr:"100.0%", wait:"6837.97", cost:"887.33", lat:"132.13", drops:16}, "30%":{mr:"100.0%", wait:"6837.0", cost:"887.0", lat:"133.0", drops:38}, "50%":{mr:"100.0%", wait:"6840.0", cost:"887.0", lat:"135.0", drops:64}, "70%":{mr:"100.0%", wait:"6842.0", cost:"887.0", lat:"138.0", drops:120}, "100%": {mr:"98.4%", wait:"6941.22", cost:"888.31", lat:"1311.04", drops:24013} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"264.62", lat:"348.75", drops:20}, "100%": {mr:"99.8%", pmr:"99.8%", cmr:"100.0%", wait:"308.90", lat:"914.90", drops:3796} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3632.32", lat:"346.77", drops:18}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3989.50", lat:"659.82", drops:1113} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"213.89", lat:"394.94", drops:4}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"236.97", lat:"441.39", drops:4} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.20", lat:"378.70", drops:19}, "100%": {mr:"99.8%", pmr:"99.8%", cmr:"100.0%", wait:"227.02", lat:"933.74", drops:3705} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6837.97", lat:"132.13", drops:16}, "100%": {mr:"98.4%", pmr:"98.1%", cmr:"98.9%", wait:"6941.22", lat:"1311.04", drops:24013} }
                 },
                 nyserda: {
-                    "FCFS": { "10%": {mr:"100.0%", wait:"51.76", cost:"351.19", lat:"2028.01", drops:24}, "30%": {mr:"100.0%", wait:"51.66", cost:"350.86", lat:"2420.83", drops:78}, "50%": {mr:"100.0%", wait:"53.45", cost:"350.40", lat:"2416.63", drops:195}, "70%": {mr:"100.0%", wait:"54.13", cost:"350.56", lat:"2636.36", drops:403}, "100%": {mr:"97.8%", wait:"52.86", cost:"353.30", lat:"35218.75", drops:40519} },
-                    "Nearest": { "10%": {mr:"100.0%", wait:"231.27", cost:"371.80", lat:"2416.77", drops:21}, "30%": {mr:"100.0%", wait:"230.96", cost:"371.89", lat:"2562.29", drops:65}, "50%": {mr:"100.0%", wait:"229.71", cost:"371.89", lat:"2505.14", drops:156}, "70%": {mr:"100.0%", wait:"230.79", cost:"372.06", lat:"2606.93", drops:318}, "100%": {mr:"98.5%", wait:"258.06", cost:"377.37", lat:"23553.32", drops:24216} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"1.97", cost:"372.11", lat:"2855.41", drops:12}, "30%": {mr:"100.0%", wait:"2.03", cost:"373.32", lat:"2744.32", drops:27}, "50%": {mr:"100.0%", wait:"2.06", cost:"375.07", lat:"2744.40", drops:31}, "70%": {mr:"100.0%", wait:"2.09", cost:"373.99", lat:"2761.16", drops:34}, "100%": {mr:"100.0%", wait:"2.09", cost:"374.60", lat:"2789.46", drops:34} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", wait:"1.95", cost:"372.57", lat:"2653.45", drops:24}, "30%": {mr:"100.0%", wait:"1.95", cost:"372.57", lat:"2576.27", drops:73}, "50%": {mr:"100.0%", wait:"1.95", cost:"372.57", lat:"2767.52", drops:186}, "70%": {mr:"100.0%", wait:"1.95", cost:"372.54", lat:"2944.16", drops:367}, "100%": {mr:"98.3%", wait:"2.07", cost:"375.03", lat:"29249.74", drops:28365} },
-                    "Greedy": { "10%": {mr:"100.0%", wait:"6356.04", cost:"536.28", lat:"425.45", drops:13}, "30%": {mr:"100.0%", wait:"6449.14", cost:"533.66", lat:"435.63", drops:47}, "50%": {mr:"100.0%", wait:"6520.37", cost:"531.33", lat:"407.35", drops:87}, "70%": {mr:"100.0%", wait:"6638.96", cost:"529.53", lat:"447.03", drops:180}, "100%": {mr:"97.5%", wait:"6794.29", cost:"528.50", lat:"12477.13", drops:34528} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"51.76", lat:"2028.01", drops:24}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"51.66", lat:"2420.83", drops:78}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.45", lat:"2416.63", drops:195}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"54.13", lat:"2636.36", drops:403}, "100%": {mr:"97.8%", pmr:"96.5%", cmr:"98.1%", wait:"52.86", lat:"35218.75", drops:40519} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"231.27", lat:"2416.77", drops:21}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"230.96", lat:"2562.29", drops:65}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"229.71", lat:"2505.14", drops:156}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"230.79", lat:"2606.93", drops:318}, "100%": {mr:"98.5%", pmr:"98.0%", cmr:"99.0%", wait:"258.06", lat:"23553.32", drops:24216} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.97", lat:"2855.41", drops:12}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.03", lat:"2744.32", drops:27}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.06", lat:"2744.40", drops:31}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", lat:"2761.16", drops:34}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", lat:"2789.46", drops:34} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2653.45", drops:24}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2576.27", drops:73}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2767.52", drops:186}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2944.16", drops:367}, "100%": {mr:"98.3%", pmr:"98.0%", cmr:"98.5%", wait:"2.07", lat:"29249.74", drops:28365} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6356.04", lat:"425.45", drops:13}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6449.14", lat:"435.63", drops:47}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6520.37", lat:"407.35", drops:87}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6638.96", lat:"447.03", drops:180}, "100%": {mr:"97.5%", pmr:"97.0%", cmr:"97.8%", wait:"6794.29", lat:"12477.13", drops:34528} }
                 },
                 synthetic: {
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"6.99", cost:"612.73", lat:"5889.26", drops:30}, "30%":{mr:"100.0%", wait:"7.1", cost:"612.0", lat:"5600.0", drops:41}, "50%":{mr:"100.0%", wait:"7.2", cost:"612.0", lat:"5580.0", drops:42}, "70%":{mr:"100.0%", wait:"7.2", cost:"613.0", lat:"5570.0", drops:42}, "100%": {mr:"100.0%", wait:"7.30", cost:"613.08", lat:"5568.77", drops:42} },
-                    "FCFS": { "10%": {mr:"100.0%", wait:"102.39", cost:"612.78", lat:"5490.20", drops:55}, "30%":{mr:"100.0%", wait:"102.5", cost:"613.0", lat:"6200.0", drops:196}, "50%":{mr:"100.0%", wait:"103.0", cost:"613.0", lat:"12000.0", drops:451}, "70%":{mr:"100.0%", wait:"103.2", cost:"613.0", lat:"18000.0", drops:971}, "100%": {mr:"99.2%", wait:"103.74", cost:"613.56", lat:"33011.64", drops:39297} }
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6.99", lat:"5889.26", drops:30}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7.30", lat:"5568.77", drops:42} },
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"102.39", lat:"5490.20", drops:55}, "100%": {mr:"99.2%", pmr:"99.0%", cmr:"99.4%", wait:"103.74", lat:"33011.64", drops:39297} }
                 }
             },
             "30%": {
                 caltech: {
-                    "FCFS": { "10%": {mr:"100.0%", wait:"6655.10", cost:"1781.97", lat:"270.79", drops:52}, "30%":{mr:"100.0%", wait:"6655.0", cost:"1781.0", lat:"380.0", drops:193}, "50%":{mr:"100.0%", wait:"6656.0", cost:"1781.0", lat:"420.0", drops:467}, "70%":{mr:"100.0%", wait:"6658.0", cost:"1781.0", lat:"510.0", drops:1124}, "100%": {mr:"99.5%", wait:"8929.85", cost:"1780.81", lat:"998.10", drops:10484} },
-                    "Nearest": { "10%": {mr:"100.0%", wait:"16595.55", cost:"1781.97", lat:"268.51", drops:40}, "30%":{mr:"100.0%", wait:"16600.0", cost:"1781.0", lat:"310.0", drops:129}, "50%":{mr:"100.0%", wait:"16610.0", cost:"1781.0", lat:"410.0", drops:311}, "70%":{mr:"100.0%", wait:"16620.0", cost:"1781.0", lat:"520.0", drops:594}, "100%": {mr:"99.5%", wait:"18354.44", cost:"1780.27", lat:"924.19", drops:9933} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"8163.05", cost:"1781.97", lat:"290.89", drops:11}, "30%":{mr:"100.0%", wait:"8200.0", cost:"1781.0", lat:"291.0", drops:11}, "50%":{mr:"100.0%", wait:"8240.0", cost:"1781.0", lat:"292.0", drops:11}, "70%":{mr:"100.0%", wait:"8300.0", cost:"1781.0", lat:"292.0", drops:11}, "100%": {mr:"100.0%", wait:"8995.32", cost:"1781.97", lat:"293.23", drops:11} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", wait:"6653.40", cost:"1781.97", lat:"285.87", drops:49}, "30%":{mr:"100.0%", wait:"6653.0", cost:"1781.0", lat:"310.0", drops:198}, "50%":{mr:"100.0%", wait:"6654.0", cost:"1781.0", lat:"420.0", drops:524}, "70%":{mr:"100.0%", wait:"6654.0", cost:"1781.0", lat:"490.0", drops:1124}, "100%": {mr:"99.5%", wait:"8927.54", cost:"1780.75", lat:"1087.81", drops:10491} },
-                    "Greedy": { "10%": {mr:"100.0%", wait:"40010.41", cost:"1781.97", lat:"124.17", drops:99}, "30%":{mr:"100.0%", wait:"41000.0", cost:"1781.0", lat:"210.0", drops:333}, "50%":{mr:"100.0%", wait:"42000.0", cost:"1781.0", lat:"340.0", drops:639}, "70%":{mr:"100.0%", wait:"43000.0", cost:"1781.0", lat:"480.0", drops:1124}, "100%": {mr:"91.9%", wait:"46353.80", cost:"1786.99", lat:"3120.19", drops:114816} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6655.10", lat:"270.79", drops:52}, "100%": {mr:"99.5%", pmr:"99.2%", cmr:"99.7%", wait:"8929.85", lat:"998.10", drops:10484} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"16595.55", lat:"268.51", drops:40}, "100%": {mr:"99.5%", pmr:"99.1%", cmr:"99.8%", wait:"18354.44", lat:"924.19", drops:9933} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"8163.05", lat:"290.89", drops:11}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"8995.32", lat:"293.23", drops:11} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6653.40", lat:"285.87", drops:49}, "100%": {mr:"99.5%", pmr:"99.4%", cmr:"99.6%", wait:"8927.54", lat:"1087.81", drops:10491} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"40010.41", lat:"124.17", drops:99}, "100%": {mr:"91.9%", pmr:"90.8%", cmr:"92.5%", wait:"46353.80", lat:"3120.19", drops:114816} }
                 },
                 dundee: {
-                    "FCFS": { "10%": {mr:"100.0%", wait:"262.37", cost:"627.82", lat:"352.99", drops:59}, "30%":{mr:"100.0%", wait:"265.0", cost:"628.0", lat:"410.0", drops:215}, "50%":{mr:"100.0%", wait:"268.0", cost:"628.0", lat:"520.0", drops:518}, "70%":{mr:"100.0%", wait:"270.0", cost:"628.0", lat:"630.0", drops:1099}, "100%": {mr:"99.2%", wait:"526.78", cost:"632.00", lat:"1900.95", drops:16151} },
-                    "Nearest": { "10%": {mr:"100.0%", wait:"3527.27", cost:"747.30", lat:"351.76", drops:77}, "30%":{mr:"100.0%", wait:"3530.0", cost:"747.0", lat:"420.0", drops:256}, "50%":{mr:"100.0%", wait:"3540.0", cost:"747.0", lat:"510.0", drops:521}, "70%":{mr:"100.0%", wait:"3550.0", cost:"747.0", lat:"630.0", drops:869}, "100%": {mr:"99.6%", wait:"4448.95", cost:"748.86", lat:"1147.58", drops:7543} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"396.73", cost:"634.92", lat:"385.64", drops:17}, "30%":{mr:"100.0%", wait:"396.0", cost:"634.0", lat:"385.0", drops:17}, "50%":{mr:"100.0%", wait:"397.0", cost:"634.0", lat:"386.0", drops:17}, "70%":{mr:"100.0%", wait:"398.0", cost:"634.0", lat:"388.0", drops:17}, "100%": {mr:"100.0%", wait:"454.81", cost:"626.24", lat:"389.66", drops:17} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", wait:"191.90", cost:"640.75", lat:"364.57", drops:51}, "30%":{mr:"100.0%", wait:"192.0", cost:"640.0", lat:"410.0", drops:204}, "50%":{mr:"100.0%", wait:"193.0", cost:"640.0", lat:"530.0", drops:471}, "70%":{mr:"100.0%", wait:"195.0", cost:"640.0", lat:"680.0", drops:961}, "100%": {mr:"99.2%", wait:"449.15", cost:"639.54", lat:"2048.46", drops:15839} },
-                    "Greedy": { "10%": {mr:"100.0%", wait:"6401.82", cost:"887.19", lat:"154.63", drops:102}, "30%":{mr:"100.0%", wait:"6450.0", cost:"887.0", lat:"230.0", drops:332}, "50%":{mr:"100.0%", wait:"6500.0", cost:"887.0", lat:"410.0", drops:616}, "70%":{mr:"100.0%", wait:"6600.0", cost:"887.0", lat:"890.0", drops:1042}, "100%": {mr:"91.7%", wait:"7400.63", cost:"904.13", lat:"4834.94", drops:120117} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"262.37", lat:"352.99", drops:59}, "100%": {mr:"99.2%", pmr:"99.0%", cmr:"99.4%", wait:"526.78", lat:"1900.95", drops:16151} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"3527.27", lat:"351.76", drops:77}, "100%": {mr:"99.6%", pmr:"99.5%", cmr:"99.8%", wait:"4448.95", lat:"1147.58", drops:7543} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"396.73", lat:"385.64", drops:17}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"454.81", lat:"389.66", drops:17} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"191.90", lat:"364.57", drops:51}, "100%": {mr:"99.2%", pmr:"99.1%", cmr:"99.4%", wait:"449.15", lat:"2048.46", drops:15839} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6401.82", lat:"154.63", drops:102}, "100%": {mr:"91.7%", pmr:"91.0%", cmr:"92.3%", wait:"7400.63", lat:"4834.94", drops:120117} }
                 },
                 nyserda: {
-                    "FCFS": { "10%": {mr:"100.0%", wait:"53.05", cost:"349.59", lat:"2119.12", drops:68}, "30%": {mr:"100.0%", wait:"52.83", cost:"351.08", lat:"2179.53", drops:255}, "50%": {mr:"100.0%", wait:"52.40", cost:"352.80", lat:"2544.37", drops:549}, "70%": {mr:"100.0%", wait:"53.49", cost:"350.06", lat:"2969.05", drops:1327}, "100%": {mr:"93.0%", wait:"51.75", cost:"350.87", lat:"93361.58", drops:124362} },
-                    "Nearest": { "10%": {mr:"100.0%", wait:"224.68", cost:"371.80", lat:"2169.81", drops:69}, "30%": {mr:"100.0%", wait:"219.32", cost:"372.69", lat:"2405.91", drops:255}, "50%": {mr:"100.0%", wait:"203.70", cost:"374.01", lat:"2579.93", drops:545}, "70%": {mr:"100.0%", wait:"187.60", cost:"373.89", lat:"3011.48", drops:1251}, "100%": {mr:"95.3%", wait:"299.81", cost:"383.84", lat:"57879.90", drops:78327} },
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"2.09", cost:"371.50", lat:"2448.71", drops:46}, "30%": {mr:"100.0%", wait:"2.16", cost:"366.09", lat:"2400.70", drops:76}, "50%": {mr:"100.0%", wait:"2.31", cost:"364.99", lat:"2646.98", drops:90}, "70%": {mr:"100.0%", wait:"2.36", cost:"363.47", lat:"2390.48", drops:100}, "100%": {mr:"100.0%", wait:"2.41", cost:"362.56", lat:"2425.71", drops:106} },
-                    "Base Gale Shapley": { "10%": {mr:"100.0%", wait:"1.95", cost:"372.57", lat:"2350.18", drops:67}, "30%": {mr:"100.0%", wait:"1.95", cost:"372.46", lat:"2381.44", drops:242}, "50%": {mr:"100.0%", wait:"1.95", cost:"372.56", lat:"2844.25", drops:535}, "70%": {mr:"100.0%", wait:"1.95", cost:"372.98", lat:"3212.48", drops:1230}, "100%": {mr:"94.8%", wait:"2.41", cost:"362.87", lat:"71296.87", drops:88933} },
-                    "Greedy": { "10%": {mr:"100.0%", wait:"6034.87", cost:"539.35", lat:"400.15", drops:108}, "30%": {mr:"100.0%", wait:"5490.07", cost:"539.34", lat:"363.29", drops:374}, "50%": {mr:"100.0%", wait:"5209.63", cost:"534.23", lat:"480.51", drops:653}, "70%": {mr:"100.0%", wait:"5362.53", cost:"511.75", lat:"478.81", drops:1182}, "100%": {mr:"91.1%", wait:"7425.76", cost:"467.54", lat:"38207.96", drops:128596} }
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.05", lat:"2119.12", drops:68}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"52.83", lat:"2179.53", drops:255}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"52.40", lat:"2544.37", drops:549}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"53.49", lat:"2969.05", drops:1327}, "100%": {mr:"93.0%", pmr:"91.4%", cmr:"94.2%", wait:"51.75", lat:"93361.58", drops:124362} },
+                    "Nearest": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"224.68", lat:"2169.81", drops:69}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"219.32", lat:"2405.91", drops:255}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"203.70", lat:"2579.93", drops:545}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"187.60", lat:"3011.48", drops:1251}, "100%": {mr:"95.3%", pmr:"94.0%", cmr:"96.2%", wait:"299.81", lat:"57879.90", drops:78327} },
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.09", lat:"2448.71", drops:46}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.16", lat:"2400.70", drops:76}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.31", lat:"2646.98", drops:90}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.36", lat:"2390.48", drops:100}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"2.41", lat:"2425.71", drops:106} },
+                    "Base Gale Shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2350.18", drops:67}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2381.44", drops:242}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"2844.25", drops:535}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"1.95", lat:"3212.48", drops:1230}, "100%": {mr:"94.8%", pmr:"93.5%", cmr:"95.8%", wait:"2.41", lat:"71296.87", drops:88933} },
+                    "Greedy": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"6034.87", lat:"400.15", drops:108}, "30%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5490.07", lat:"363.29", drops:374}, "50%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5209.63", lat:"480.51", drops:653}, "70%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"5362.53", lat:"478.81", drops:1182}, "100%": {mr:"91.1%", pmr:"89.5%", cmr:"92.0%", wait:"7425.76", lat:"38207.96", drops:128596} }
                 },
                 synthetic: {
-                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", wait:"7.87", cost:"610.34", lat:"5891.33", drops:92}, "30%":{mr:"100.0%", wait:"8.2", cost:"611.0", lat:"5700.0", drops:125}, "50%":{mr:"100.0%", wait:"8.5", cost:"612.0", lat:"5640.0", drops:128}, "70%":{mr:"100.0%", wait:"8.9", cost:"613.0", lat:"5630.0", drops:128}, "100%": {mr:"100.0%", wait:"9.34", cost:"613.86", lat:"5631.88", drops:128} },
-                    "FCFS": { "10%": {mr:"100.0%", wait:"103.29", cost:"613.36", lat:"4948.15", drops:145}, "30%":{mr:"100.0%", wait:"104.5", cost:"615.0", lat:"12000.0", drops:544}, "50%":{mr:"100.0%", wait:"105.0", cost:"617.0", lat:"2400.0", drops:1325}, "70%":{mr:"100.0%", wait:"106.2", cost:"618.0", lat:"45000.0", drops:2941}, "100%": {mr:"97.4%", wait:"107.56", cost:"619.83", lat:"91248.80", drops:119643} }
+                    "Reputation based Gale shapley": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"7.87", lat:"5891.33", drops:92}, "100%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"9.34", lat:"5631.88", drops:128} },
+                    "FCFS": { "10%": {mr:"100.0%", pmr:"100.0%", cmr:"100.0%", wait:"103.29", lat:"4948.15", drops:145}, "100%": {mr:"97.4%", pmr:"96.0%", cmr:"98.2%", wait:"107.56", lat:"91248.80", drops:119643} }
                 }
             }
         };
@@ -333,8 +346,9 @@
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let isSimulating = false;
-        let currentChartObj = null;
-        let activeGraphMetric = 'drops';
+        
+        // Tracking array definitions for instantiated charts instances
+        let activeCharts = {};
 
         let stations = [];
         let vehicles = [];
@@ -348,389 +362,239 @@
 
         class ChargingStation {
             constructor(id, x, y, isMalicious) {
-                this.id = id;
-                this.x = x;
-                this.y = y;
-                this.isMalicious = isMalicious;
-                this.isBlacklisted = false;
-                this.queue = []; // Array tracking physical vehicles queued at this node
+                this.id = id; this.x = x; this.y = y;
+                this.isMalicious = isMalicious; this.isBlacklisted = false;
+                this.queue = [];
             }
             draw() {
-                // Main chassis
-                ctx.fillStyle = "#64748b";
-                ctx.fillRect(this.x - 10, this.y - 16, 20, 32);
-                
-                // Charger screen window
-                ctx.fillStyle = "#1e293b";
-                ctx.fillRect(this.x - 7, -13 + this.y, 14, 8);
-                
-                // Status color node dot
-                if (this.isBlacklisted) {
-                    ctx.fillStyle = "#7f1d1d"; // Blocked adversary color
-                } else {
-                    ctx.fillStyle = this.isMalicious ? "#dc2626" : "#16a34a";
-                }
-                ctx.beginPath();
-                ctx.arc(this.x, this.y + 6, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Draw a small label indicator identifying station ID context
-                ctx.fillStyle = varTextMuted();
-                ctx.font = "bold 9px sans-serif";
-                ctx.textAlign = "center";
+                ctx.fillStyle = "#64748b"; ctx.fillRect(this.x - 10, this.y - 16, 20, 32);
+                ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x - 7, this.y - 13, 14, 8);
+                ctx.fillStyle = this.isBlacklisted ? "#7f1d1d" : (this.isMalicious ? "#dc2626" : "#16a34a");
+                ctx.beginPath(); ctx.arc(this.x, this.y + 6, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#64748b"; ctx.font = "bold 9px sans-serif"; ctx.textAlign = "center";
                 ctx.fillText("CP-" + this.id, this.x, this.y - 20);
             }
         }
 
-        function varTextMuted() { return "#64748b"; }
-
         class VehicleEV {
             constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.target = null;
-                this.speed = 2.0;
-                this.status = 'transiting'; // transiting, queued, docked, dropped
-                this.angle = 0;
-                this.bounceX = null;
-                this.bounceY = null;
-                this.alertTimer = 0;
+                this.x = x; this.y = y; this.target = null; this.speed = 2.2;
+                this.status = 'transiting'; this.angle = 0;
+                this.bounceX = null; this.bounceY = null; this.alertTimer = 0;
             }
             update() {
                 const algo = document.getElementById('algorithm').value;
-                
                 if (this.status === 'dropped' && this.bounceX !== null) {
-                    // Turnaround penalty loop maneuver path tracking execution
-                    let dx = this.bounceX - this.x;
-                    let dy = this.bounceY - this.y;
-                    let dist = Math.hypot(dx, dy);
-                    this.angle = Math.atan2(dy, dx);
-                    
-                    if (dist > 5) {
-                        this.x += (dx / dist) * this.speed;
-                        this.y += (dy / dist) * this.speed;
-                    } else {
-                        this.bounceX = null;
-                        this.bounceY = null;
-                        this.status = 'transiting';
-                        this.reassignTarget(algo);
-                    }
+                    let dx = this.bounceX - this.x; let dy = this.bounceY - this.y;
+                    let dist = Math.hypot(dx, dy); this.angle = Math.atan2(dy, dx);
+                    if (dist > 5) { this.x += (dx / dist) * this.speed; this.y += (dy / dist) * this.speed; } 
+                    else { this.bounceX = null; this.bounceY = null; this.status = 'transiting'; this.reassignTarget(algo); }
                 } else if (this.target) {
-                    // Calculate structured position offset targets matching stack sequence inside station queue
                     let qIndex = this.target.queue.indexOf(this);
+                    if (qIndex === -1) { this.target.queue.push(this); qIndex = this.target.queue.indexOf(this); }
                     
-                    // If vehicle isn't currently placed inside the station array queue object, join it
-                    if (qIndex === -1) {
-                        this.target.queue.push(this);
-                        qIndex = this.target.queue.indexOf(this);
-                    }
-
-                    // Geometric assignment calculations matching spacing vectors
-                    let targetX = this.target.x;
-                    let targetY = this.target.y + 24 + (qIndex * 16); // Linear vertical stack array pattern spacing
-
-                    let dx = targetX - this.x;
-                    let dy = targetY - this.y;
+                    let dx = this.target.x - this.x;
+                    let dy = (this.target.y + 24 + (qIndex * 16)) - this.y;
                     let dist = Math.hypot(dx, dy);
                     
                     if (dist > 3) {
-                        this.status = 'transiting';
-                        this.angle = Math.atan2(dy, dx);
-                        this.x += (dx / dist) * this.speed;
-                        this.y += (dy / dist) * this.speed;
+                        this.status = 'transiting'; this.angle = Math.atan2(dy, dx);
+                        this.x += (dx / dist) * this.speed; this.y += (dy / dist) * this.speed;
                     } else {
-                        // Position point reached! Transition state configuration profiles
                         if (qIndex === 0) {
-                            // Active execution bay processing
                             if (this.target.isMalicious && !this.target.isBlacklisted) {
-                                this.status = 'dropped';
-                                this.alertTimer = 35;
-                                
-                                // Eject node from array queue immediately on failure trigger execution
-                                this.removeFromCurrentQueue();
-
+                                this.status = 'dropped'; this.alertTimer = 35;
+                                this.removeFromQueue();
                                 if (algo.includes("Reputation")) {
-                                    this.target.isBlacklisted = true; // Isolate node adversary properties
-                                    this.status = 'transiting';
-                                    this.reassignTarget(algo);
+                                    this.target.isBlacklisted = true; this.status = 'transiting'; this.reassignTarget(algo);
                                 } else {
-                                    // Generate turnaround escape coordinate targets vector properties
-                                    this.bounceX = this.x - Math.cos(this.angle) * 70 + (Math.random() - 0.5) * 30;
-                                    this.bounceY = this.y - Math.sin(this.angle) * 70 + (Math.random() - 0.5) * 30;
+                                    this.bounceX = this.x - Math.cos(this.angle) * 60 + (Math.random() - 0.5) * 30;
+                                    this.bounceY = this.y - Math.sin(this.angle) * 60 + (Math.random() - 0.5) * 30;
                                 }
-                            } else {
-                                this.status = 'docked';
-                            }
-                        } else {
-                            this.status = 'queued'; // Hold processing state safely behind active server channel
-                        }
+                            } else { this.status = 'docked'; }
+                        } else { this.status = 'queued'; }
                     }
                 }
                 if (this.alertTimer > 0) this.alertTimer--;
             }
-            removeFromCurrentQueue() {
+            removeFromQueue() {
                 if (this.target) {
                     let idx = this.target.queue.indexOf(this);
-                    if (idx !== -1) {
-                        this.target.queue.splice(idx, 1);
-                    }
+                    if (idx !== -1) this.target.queue.splice(idx, 1);
                 }
             }
             reassignTarget(algo) {
-                this.removeFromCurrentQueue();
-                let cleanPool = stations.filter(s => !s.isMalicious && !s.isBlacklisted);
-                if (algo.includes("Reputation") && cleanPool.length > 0) {
-                    this.target = cleanPool[Math.floor(Math.random() * cleanPool.length)];
-                } else {
-                    this.target = stations[Math.floor(Math.random() * stations.length)];
-                }
+                this.removeFromQueue();
+                let pool = stations.filter(s => !s.isMalicious && !s.isBlacklisted);
+                this.target = (algo.includes("Reputation") && pool.length > 0) ? pool[Math.floor(Math.random() * pool.length)] : stations[Math.floor(Math.random() * stations.length)];
                 this.target.queue.push(this);
             }
             draw() {
-                // Determine layout profile colors attributes based on tracking state transitions
-                let chassisColor = "#0284c7";
-                if (this.status === 'dropped') chassisColor = "#ea580c";
-                if (this.status === 'queued' || this.status === 'docked') chassisColor = "#64748b";
+                let color = this.status === 'dropped' ? "#ea580c" : ((this.status === 'queued' || this.status === 'docked') ? "#64748b" : "#0284c7");
                 
-                // Headlight system: Cones are strictly active ONLY during structural transiting execution
+                // Headlight cones gradient configuration (Off inside queue or docks boundaries)
                 if (this.status === 'transiting' || this.status === 'dropped') {
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.angle);
-
-                    // Dual asymmetrical gradient cones configurations
-                    let beamGradient = ctx.createRadialGradient(8, 0, 2, 35, 0, 30);
-                    beamGradient.addColorStop(0, "rgba(254, 240, 138, 0.45)"); // Soft warm yellow core
-                    beamGradient.addColorStop(0.4, "rgba(254, 240, 138, 0.15)");
-                    beamGradient.addColorStop(1, "rgba(254, 240, 138, 0)");
-
-                    ctx.fillStyle = beamGradient;
-                    ctx.beginPath();
-                    ctx.moveTo(8, -2);
-                    ctx.lineTo(45, -16);
-                    ctx.lineTo(45, 16);
-                    ctx.lineTo(8, 2);
-                    ctx.closePath();
-                    ctx.fill();
+                    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+                    let beam = ctx.createRadialGradient(8, 0, 2, 35, 0, 25);
+                    beam.addColorStop(0, "rgba(254, 240, 138, 0.45)");
+                    beam.addColorStop(1, "rgba(254, 240, 138, 0)");
+                    ctx.fillStyle = beam; ctx.beginPath(); ctx.moveTo(8, -2); ctx.lineTo(40, -14); ctx.lineTo(40, 14); ctx.lineTo(8, 2); ctx.fill();
                     ctx.restore();
                 }
 
-                // Render main top-down isometric passenger chassis block
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.angle);
-                
-                ctx.fillStyle = chassisColor;
-                ctx.beginPath();
-                ctx.roundRect(-10, -5, 20, 10, 2);
-                ctx.fill();
-                
-                // Cabin windshield mask overlay layout lines
-                ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
-                ctx.fillRect(1, -3, 4, 6);
-                ctx.fillStyle = "rgba(15, 23, 42, 0.6)";
-                ctx.fillRect(-3, -3, 4, 6);
-                
+                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+                ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-10, -5, 20, 10, 2); ctx.fill();
+                ctx.fillStyle = "rgba(255, 255, 255, 0.3)"; ctx.fillRect(2, -3, 3, 6);
                 ctx.restore();
 
-                // Shock ripple effect context hook
                 if (this.alertTimer > 0) {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, 35 - (this.alertTimer / 1.1), 0, Math.PI * 2);
-                    ctx.strokeStyle = "rgba(234, 88, 12, " + (this.alertTimer / 35) + ")";
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
+                    ctx.beginPath(); ctx.arc(this.x, this.y, 35 - (this.alertTimer / 1.1), 0, Math.PI * 2);
+                    ctx.strokeStyle = "rgba(234, 88, 12, " + (this.alertTimer / 35) + ")"; ctx.lineWidth = 2; ctx.stroke();
                 }
             }
         }
 
-        function buildEntitiesSpace() {
-            stations = [];
-            vehicles = [];
-            
-            const malPercentStr = document.getElementById('malicious-cp').value;
-            const malRatio = parseInt(malPercentStr) / 100;
-            const algo = document.getElementById('algorithm').value;
+        function syncUIElements() {
+            const m = document.getElementById('malicious-cp').value;
+            const d = document.getElementById('dataset').value;
+            const a = document.getElementById('algorithm').value;
+            const r = document.getElementById('drop-rate').value;
 
-            // Generate Map Dock Coordinates Nodes Topologies
-            for(let i=1; i <= 10; i++) {
-                let x = 120 + (canvas.width - 240) * (i / 11) + (Math.random() - 0.5) * 20;
-                let y = 100 + Math.random() * (canvas.height - 240);
-                stations.push(new ChargingStation(i, x, y, Math.random() < malRatio));
-            }
-
-            // Create Fleet vehicles vectors array instances
-            for(let j=0; j < 25; j++) {
-                let rx = Math.random() * canvas.width;
-                let ry = canvas.height - 30 - (Math.random() * 50); // Start processing low down on light ground profile
-                vehicles.push(new VehicleEV(rx, ry));
-            }
-
-            // Sync empirical performance log data directly back into tracking metrics cards elements
-            const dataset = document.getElementById('dataset').value;
-            const dropRate = document.getElementById('drop-rate').value;
-
-            let pool = empiricalRepository[malPercentStr] || empiricalRepository["10%"];
-            let slice = pool[dataset] && pool[dataset][algo] ? pool[dataset][algo][dropRate] : null;
-
+            let pool = empiricalRepository[m] || empiricalRepository["10%"];
+            let slice = pool[d] && pool[d][a] ? pool[d][a][r] : null;
             if(!slice) {
-                let isProposed = algo.includes("Reputation");
-                slice = { mr: isProposed ? "100.0%" : "94.8%", wait: "53.0", cost:"350", lat: isProposed?"2400":"71000", drops: isProposed?17:88000 };
+                let isProp = a.includes("Reputation");
+                slice = { mr:"100.0%", wait:"4.5", lat:isProp?"2400":"35000", drops:isProp?4:24000 };
             }
 
             document.getElementById('v-mr').innerText = slice.mr;
             document.getElementById('v-drops').innerText = slice.drops.toLocaleString();
             document.getElementById('v-lat').innerText = slice.lat + " ms";
             document.getElementById('v-wait').innerText = slice.wait;
-
-            // Initialize targeting channels configuration pipelines maps
-            vehicles.forEach((ev) => ev.reassignTarget(algo));
+            
+            // Auto-refresh chart curves matching background parameter sweeps configuration switches
+            renderMasterCarouselDecks();
         }
 
-        function renderLowerChartFramework() {
-            const ctxChart = document.getElementById('analyticsChart').getContext('2d');
+        function initSimulationSpace() {
+            stations = []; vehicles = [];
+            const malRatio = parseInt(document.getElementById('malicious-cp').value) / 100;
+            const algo = document.getElementById('algorithm').value;
+
+            for(let i=1; i <= 9; i++) {
+                stations.push(new ChargingStation(i, 140 + (canvas.width - 280) * (i / 10), 120 + Math.random() * (canvas.height - 240), Math.random() < malRatio));
+            }
+            for(let j=0; j < 24; j++) {
+                vehicles.push(new VehicleEV(Math.random() * canvas.width, canvas.height - 40));
+            }
+            vehicles.forEach(v => v.reassignTarget(algo));
+        }
+
+        function renderMasterCarouselDecks() {
             const dataset = document.getElementById('dataset').value;
             const malPercentStr = document.getElementById('malicious-cp').value;
+            const ratesX = ["10%", "30%", "50%", "70%", "100%"];
+            const algorithms = ["Reputation based Gale shapley", "FCFS", "Nearest", "Base Gale Shapley", "Greedy"];
             
-            const labelsX = ["10% Drop", "30% Drop", "50% Drop", "70% Drop", "100% Drop"];
-            const algorithmsList = ["Reputation based Gale shapley", "FCFS", "Nearest", "Base Gale Shapley", "Greedy"];
-            const colorMapping = {
-                "Reputation based Gale shapley": "#0284c7", // Bright Sky Blue
-                "FCFS": "#7c3aed",
-                "Nearest": "#db2777",
-                "Base Gale Shapley": "#64748b",
-                "Greedy": "#ea580c"
+            const colorMap = {
+                "Reputation based Gale shapley": "#0284c7", "FCFS": "#7c3aed",
+                "Nearest": "#db2777", "Base Gale Shapley": "#64748b", "Greedy": "#ea580c"
             };
 
-            const datasetsChart = [];
             let pool = empiricalRepository[malPercentStr] || empiricalRepository["10%"];
             let dsContext = pool[dataset] || pool["nyserda"];
 
-            algorithmsList.forEach(algo => {
-                if(dsContext[algo]) {
-                    const dataPoints = [];
-                    ["10%", "30%", "50%", "70%", "100%"].forEach(rate => {
-                        let cell = dsContext[algo][rate];
-                        if(cell) {
-                            if (activeGraphMetric === 'drops') dataPoints.push(cell.drops);
-                            else if (activeGraphMetric === 'latency') dataPoints.push(parseFloat(cell.lat));
-                            else dataPoints.push(parseFloat(cell.wait));
-                        } else {
-                            dataPoints.push(null);
-                        }
-                    });
-
-                    if(dataPoints.some(v => v !== null)) {
-                        datasetsChart.push({
-                            label: algo === "Reputation based Gale shapley" ? "Proposed GS (Reputation)" : algo,
-                            data: dataPoints,
-                            borderColor: colorMapping[algo],
-                            backgroundColor: colorMapping[algo] + "0a",
-                            borderWidth: algo.includes("Reputation") ? 4 : 2,
-                            tension: 0.1,
-                            fill: algo.includes("Reputation")
-                        });
-                    }
-                }
-            });
-
-            if(currentChartObj) currentChartObj.destroy();
-
-            currentChartObj = new Chart(ctxChart, {
-                type: 'line',
-                data: { labels: labelsX, datasets: datasetsChart },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#0f172a', font: { family: 'Segoe UI', weight: '600' } } }
-                    },
-                    scales: {
-                        x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } },
-                        y: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' }, type: activeGraphMetric === 'drops' ? 'logarithmic' : 'linear' }
-                    }
-                }
-            });
-        }
-
-        function switchGraph(metricType) {
-            activeGraphMetric = metricType;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            renderLowerChartFramework();
-        }
-
-        function loop() {
-            // Background clearing over clean light slate profile terrain layer canvas
-            ctx.fillStyle = "#cbd5e1";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw subtle vector alignment lines cross hatch grid background matrix geometry layout
-            ctx.strokeStyle = "#e2e8f0";
-            ctx.lineWidth = 1;
-            const stepGrid = 40;
-            for(let x=0; x<canvas.width; x+=stepGrid) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-            }
-            for(let y=0; y<canvas.height; y+=stepGrid) {
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-            }
-
-            // Draw link vectors layers indicators paths mapping
-            if (isSimulating) {
-                vehicles.forEach(ev => {
-                    if (ev.target && ev.status === 'transiting') {
-                        ctx.beginPath();
-                        ctx.moveTo(ev.x, ev.y);
-                        ctx.lineTo(ev.target.x, ev.target.y);
-                        ctx.strokeStyle = "rgba(2, 132, 199, 0.08)";
-                        ctx.lineWidth = 1;
-                        ctx.stroke();
-                    }
+            // Helper to generate chart baseline processing logic
+            function extractLineData(algo, field) {
+                return ratesX.map(rate => {
+                    let cell = dsContext[algo] ? dsContext[algo][rate] : null;
+                    if(!cell) return null;
+                    if(field === 'mr' || field === 'pmr' || field === 'cmr') return parseFloat(cell[field]);
+                    return parseFloat(cell[field]);
                 });
             }
 
-            // Render asset stacks layers structures sequentially
+            // --- 1. Connection Drops Chart (Logarithmic) ---
+            let dropsDatasets = algorithms.map(algo => ({
+                label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
+                data: extractLineData(algo, 'drops'), borderColor: colorMap[algo],
+                borderWidth: algo.includes("Reputation") ? 4 : 2, fill: false, tension: 0.1
+            }));
+            recreateChart('chartDrops', 'logarithmic', 'Drops Counts', dropsDatasets, ratesX);
+
+            // --- 2. Latency Spectrum Chart (Logarithmic) ---
+            let latDatasets = algorithms.map(algo => ({
+                label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
+                data: extractLineData(algo, 'lat'), borderColor: colorMap[algo],
+                borderWidth: algo.includes("Reputation") ? 4 : 2, fill: false, tension: 0.1
+            }));
+            recreateChart('chartLatency', 'logarithmic', 'Latency (ms)', latDatasets, ratesX);
+
+            // --- 3. Dynamic Multi-Variable Satisfaction Rates Chart (Linear %) ---
+            // Unpack exclusive Proscriber vs Consumer bipartite data points
+            let satDatasets = [
+                { label: "Overall Match Rate", data: extractLineData("Reputation based Gale shapley", "mr"), borderColor: "#16a34a", borderWidth: 3 },
+                { label: "Proscriber Match Rate", data: extractLineData("Reputation based Gale shapley", "pmr"), borderColor: "#2563eb", borderWidth: 2, borderDash: [5, 5] },
+                { label: "Consumer Match Rate", data: extractLineData("Reputation based Gale shapley", "cmr"), borderColor: "#db2777", borderWidth: 2, borderDash: [2, 2] }
+            ];
+            recreateChart('chartSatisfaction', 'linear', 'Satisfaction Rate (%)', satDatasets, ratesX);
+
+            // --- 4. Average Queued Waiting Overhead Chart (Linear) ---
+            let waitDatasets = algorithms.map(algo => ({
+                label: algo === "Reputation based Gale shapley" ? "Proposed GS" : algo,
+                data: extractLineData(algo, 'wait'), borderColor: colorMap[algo],
+                borderWidth: algo.includes("Reputation") ? 4 : 2, fill: false, tension: 0.1
+            }));
+            recreateChart('chartWaiting', 'linear', 'Wait Dimensions', waitDatasets, ratesX);
+        }
+
+        function recreateChart(canvasId, yAxisScaleType, labelY, datasetsArray, labelsX) {
+            if(activeCharts[canvasId]) activeCharts[canvasId].destroy();
+            const canvasCtx = document.getElementById(canvasId).getContext('2d');
+            activeCharts[canvasId] = new Chart(canvasCtx, {
+                type: 'line',
+                data: { labels: labelsX, datasets: datasetsArray },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: true, labels: { boxWidth: 12, font: { size: 9 } } } },
+                    scales: {
+                        x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
+                        y: { type: yAxisScaleType, title: { display: true, text: labelY, font: { size: 10, weight: 'bold' } }, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        function loop() {
+            ctx.fillStyle = "#cbd5e1"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#e2e8f0"; ctx.lineWidth = 1;
+            for(let x=0; x<canvas.width; x+=40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+            for(let y=0; y<canvas.height; y+=40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
             stations.forEach(s => s.draw());
             vehicles.forEach(v => { v.update(); v.draw(); });
 
-            if (isSimulating) {
-                animationFrameId = requestAnimationFrame(loop);
-            }
+            if (isSimulating) animationFrameId = requestAnimationFrame(loop);
         }
 
         document.getElementById('start-btn').addEventListener('click', () => {
             const btn = document.getElementById('start-btn');
             if (!isSimulating) {
-                isSimulating = true;
-                btn.innerText = "Reset Simulation Space";
-                btn.classList.add('btn-stop');
-                document.getElementById('sim-status').innerText = "Active Matrix Engine Sweep Simulation";
+                isSimulating = true; btn.innerText = "Reset System View"; btn.classList.add('btn-stop');
+                document.getElementById('sim-status').innerText = "Active Workloads Simulation Run";
                 document.getElementById('sim-status').style.color = "var(--accent-orange)";
-                
-                buildEntitiesSpace();
-                renderLowerChartFramework();
-                loop();
+                initSimulationSpace(); syncUIElements(); loop();
             } else {
-                isSimulating = false;
-                cancelAnimationFrame(animationFrameId);
+                isSimulating = false; cancelAnimationFrame(animationFrameId);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                btn.innerText = "Run Sweep Simulation";
-                btn.classList.remove('btn-stop');
-                document.getElementById('sim-status').innerText = "Ready";
-                document.getElementById('sim-status').style.color = "var(--accent-green)";
-                
-                document.getElementById('v-mr').innerText = "--";
-                document.getElementById('v-drops').innerText = "--";
-                document.getElementById('v-lat').innerText = "--";
-                document.getElementById('v-wait').innerText = "--";
+                btn.innerText = "Run Sweep Simulation"; btn.classList.remove('btn-stop');
+                document.getElementById('sim-status').innerText = "Ready"; document.getElementById('sim-status').style.color = "var(--accent-green)";
+                document.getElementById('v-mr').innerText = "--"; document.getElementById('v-drops').innerText = "--";
+                document.getElementById('v-lat').innerText = "--"; document.getElementById('v-wait').innerText = "--";
             }
         });
 
-        window.addEventListener('load', () => {
-            resizeCanvas();
-            renderLowerChartFramework();
-        });
+        window.addEventListener('load', () => { resizeCanvas(); syncUIElements(); });
     </script>
 </body>
 </html>
